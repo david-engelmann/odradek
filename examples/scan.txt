@@ -1,0 +1,22 @@
+snapshot 100000
+counts live 2 suspect 3 proven 2 settled 1
+zombie stale-1
+  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds
+  evidence for owner done-run is recorded finished
+  evidence for holds cache with no in-flight marker
+zombie stale-2
+  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds
+  evidence for owner ghost-7 is absent from the snapshot
+  evidence for the entry holds nothing and carries no in-flight marker
+suspect busy-1
+  evidence against signal age 150 seconds is under the proof threshold of 180 seconds
+  evidence against owner boss-run is recorded running
+  evidence against holds cache, in-flight including the in-flight marker
+suspect half-1
+  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds
+  missing no owner reference is recorded for this entry
+  evidence for holds reports with no in-flight marker
+suspect quiet-1
+  missing no signal is recorded for this entry
+  missing no owner reference is recorded for this entry
+  evidence for the entry holds nothing and carries no in-flight marker

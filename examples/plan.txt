@@ -1,0 +1,12 @@
+quarantine plan for stale-1
+classification proven zombie
+proof
+  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds
+  evidence for owner done-run is recorded finished
+  evidence for holds cache with no in-flight marker
+step 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it
+step 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched
+step 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1
+observation window 1200 seconds
+escalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself
+executes nothing, this plan is a document and the tool performs no part of it
