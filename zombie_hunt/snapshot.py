@@ -125,7 +125,10 @@ def _field_value(name, value, source, entry_id, snapshot_time):
                 f"{value!r} with an empty token or the word none "
                 "inside the list"
             )
-        return tokens
+        # ZH-20 reads the list as a set of tokens, so each token is
+        # recorded once however many times the list writes it, and
+        # every consumer downstream sees the deduplicated form.
+        return tuple(dict.fromkeys(tokens))
     if name == "owner":
         if value == "none":
             return None
