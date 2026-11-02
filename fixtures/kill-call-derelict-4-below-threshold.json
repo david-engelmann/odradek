@@ -1,0 +1,29 @@
+{
+  "judgment_point": "kill-call",
+  "request": {
+    "entry": "derelict-4",
+    "in-flight": {
+      "evidence": "holds ledger with no in-flight marker",
+      "outcome": "satisfied"
+    },
+    "owner": {
+      "evidence": "owner closer-2 is recorded finished",
+      "outcome": "satisfied"
+    },
+    "signal": {
+      "evidence": "signal age 1000 seconds reaches the proof threshold of 75 seconds",
+      "outcome": "satisfied"
+    }
+  },
+  "response": {
+    "choice": "quarantine",
+    "confidence": 0.45,
+    "kind": "choice",
+    "probabilities": {
+      "quarantine": 0.45,
+      "spare": 0.2,
+      "watch": 0.35
+    }
+  },
+  "synthetic": true
+}

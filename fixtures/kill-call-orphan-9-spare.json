@@ -1,0 +1,29 @@
+{
+  "judgment_point": "kill-call",
+  "request": {
+    "entry": "orphan-9",
+    "in-flight": {
+      "evidence": "holds queue-token with no in-flight marker",
+      "outcome": "satisfied"
+    },
+    "owner": {
+      "evidence": "owner gone-1 is absent from the snapshot",
+      "outcome": "satisfied"
+    },
+    "signal": {
+      "evidence": "signal age 900 seconds reaches the proof threshold of 135 seconds",
+      "outcome": "satisfied"
+    }
+  },
+  "response": {
+    "choice": "spare",
+    "confidence": 0.75,
+    "kind": "choice",
+    "probabilities": {
+      "quarantine": 0.15,
+      "spare": 0.75,
+      "watch": 0.1
+    }
+  },
+  "synthetic": true
+}

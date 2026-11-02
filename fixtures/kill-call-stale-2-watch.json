@@ -1,0 +1,29 @@
+{
+  "judgment_point": "kill-call",
+  "request": {
+    "entry": "stale-2",
+    "in-flight": {
+      "evidence": "the entry holds nothing and carries no in-flight marker",
+      "outcome": "satisfied"
+    },
+    "owner": {
+      "evidence": "owner ghost-7 is absent from the snapshot",
+      "outcome": "satisfied"
+    },
+    "signal": {
+      "evidence": "signal age 1000 seconds reaches the proof threshold of 180 seconds",
+      "outcome": "satisfied"
+    }
+  },
+  "response": {
+    "choice": "watch",
+    "confidence": 0.8,
+    "kind": "choice",
+    "probabilities": {
+      "quarantine": 0.1,
+      "spare": 0.1,
+      "watch": 0.8
+    }
+  },
+  "synthetic": true
+}

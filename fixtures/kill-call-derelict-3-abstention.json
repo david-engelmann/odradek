@@ -1,0 +1,22 @@
+{
+  "judgment_point": "kill-call",
+  "request": {
+    "entry": "derelict-3",
+    "in-flight": {
+      "evidence": "the entry holds nothing and carries no in-flight marker",
+      "outcome": "satisfied"
+    },
+    "owner": {
+      "evidence": "owner gone-1 is absent from the snapshot",
+      "outcome": "satisfied"
+    },
+    "signal": {
+      "evidence": "signal age 4000 seconds reaches the proof threshold of 600 seconds",
+      "outcome": "satisfied"
+    }
+  },
+  "response": {
+    "kind": "abstention"
+  },
+  "synthetic": true
+}
