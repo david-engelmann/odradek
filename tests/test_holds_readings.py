@@ -178,3 +178,12 @@ def test_all_24_block_permutations_of_a_subset_plan_identically():
         )
         count += 1
     assert count == 24
+
+
+def test_a_plan_prints_a_zombies_holds_sorted_however_they_were_recorded():
+    recorded = EXAMPLE.replace(STALE_HOLDS, "holds vault,cache\nowner done-run")
+    shuffled = EXAMPLE.replace(STALE_HOLDS, "holds cache,vault\nowner done-run")
+    plan = plan_document(recorded, "stale-1")
+    assert plan == plan_document(shuffled, "stale-1")
+    holds_lines = [line for line in plan.splitlines() if "vault" in line]
+    assert holds_lines and all("cache, vault" in line for line in holds_lines)
