@@ -44,7 +44,7 @@ def test_agents_canonical_block_present():
 
 def test_readme_status_reports_rounds():
     text = (ROOT / "README.md").read_text()
-    assert "0 of 100" in text
+    assert re.search(r"Closed rounds 0 of 100(?!\d)", text), "README status must report closed rounds 0 of 100 exactly"
 
 
 def test_no_em_or_en_dash_in_text_files():
