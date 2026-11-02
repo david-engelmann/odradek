@@ -381,7 +381,7 @@ def test_a_trusted_watch_answer_is_recorded_unadvanced():
         },
     }
     assert plan_with("stale-2", StubSource(watch)) == WATCH_PLAN
-    assert "advances this plan" not in WATCH_PLAN
+    assert "advances this plan" not in plan_with("stale-2", StubSource(watch))
 
 
 def test_a_trusted_spare_answer_is_recorded_unadvanced():
