@@ -1,19 +1,35 @@
 """zombie-hunt. Proofs over recorded cluster snapshots, plans only."""
 
-from .errors import PlanError, SnapshotError, ZombieHuntError
+from .errors import (
+    JudgmentError,
+    PlanError,
+    SnapshotError,
+    ZombieHuntError,
+)
+from .judgment import (
+    FixturePlayer,
+    check_answer,
+    kill_call_request,
+    trusted,
+)
 from .plan import build_plan
 from .scan import classify, classify_entry, format_scan
 from .snapshot import Entry, Snapshot, parse_snapshot
 
 __all__ = [
     "Entry",
+    "FixturePlayer",
+    "JudgmentError",
     "PlanError",
     "Snapshot",
     "SnapshotError",
     "ZombieHuntError",
     "build_plan",
+    "check_answer",
     "classify",
     "classify_entry",
     "format_scan",
+    "kill_call_request",
     "parse_snapshot",
+    "trusted",
 ]

@@ -1,12 +1,51 @@
 """The reversible quarantine plan for one proven zombie."""
 
 from .errors import PlanError
+from .judgment import check_answer, kill_call_request, trusted
 from .scan import PROVEN, evidence_lines
 
 OBSERVATION_MULTIPLE = 10
 
 
-def build_plan(snapshot, verdicts, entry_id):
+def _verdict_lines(verdict, source):
+    """The two verdict lines a trusted kill call answer records.
+
+    The kill call is asked here and nowhere else, about the proven
+    zombie the plan names and after the plan refusals have had
+    their say. No judgment, which is an abstention, an answer under
+    the threshold, an answer outside the recorded shape, or no
+    source at all, leaves the plan exactly as Round 1 wrote it. A
+    trusted quarantine answer advances the plan for operator
+    approval. A trusted watch or spare answer is recorded with the
+    plan unadvanced. Either way the plan stays a document and the
+    tool performs no part of it.
+    """
+    answer = check_answer(source.judge(kill_call_request(verdict)))
+    if not trusted(answer):
+        return []
+    label = answer["choice"]
+    lines = [
+        "kill call verdict "
+        + label
+        + " with confidence "
+        + repr(float(answer["confidence"]))
+    ]
+    if label == "quarantine":
+        lines.append(
+            "verdict advances this plan, the plan is ready for "
+            "an operator to approve, and the approval itself "
+            "stays an operator decision the tool never takes"
+        )
+    else:
+        lines.append(
+            "verdict leaves this plan unadvanced, no action "
+            "follows from this answer, and the plan stands as "
+            "written for an operator to read"
+        )
+    return lines
+
+
+def build_plan(snapshot, verdicts, entry_id, source=None):
     """Write the quarantine plan for one proven zombie or refuse."""
     entry = snapshot.by_id.get(entry_id)
     if entry is None:
@@ -59,6 +98,8 @@ def build_plan(snapshot, verdicts, entry_id):
         "a kill proposal may be drafted in a later round, and "
         "this plan never escalates itself"
     )
+    if source is not None:
+        lines.extend(_verdict_lines(verdict, source))
     lines.append(
         "executes nothing, this plan is a document and the "
         "tool performs no part of it"

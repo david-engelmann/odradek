@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from .errors import ZombieHuntError
+from .judgment import FixturePlayer
 from .plan import build_plan
 from .scan import classify, format_scan
 from .snapshot import parse_snapshot
@@ -39,6 +40,7 @@ def main(argv=None):
     plan_parser = sub.add_parser("plan")
     plan_parser.add_argument("snapshot")
     plan_parser.add_argument("entry_id")
+    plan_parser.add_argument("--fixtures")
     args = parser.parse_args(argv)
     try:
         snapshot = parse_snapshot(_read(args.snapshot), args.snapshot)
@@ -46,7 +48,12 @@ def main(argv=None):
         if args.command == "scan":
             document = format_scan(snapshot, verdicts)
         else:
-            document = build_plan(snapshot, verdicts, args.entry_id)
+            source = None
+            if args.fixtures is not None:
+                source = FixturePlayer(args.fixtures)
+            document = build_plan(
+                snapshot, verdicts, args.entry_id, source
+            )
     except ZombieHuntError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2

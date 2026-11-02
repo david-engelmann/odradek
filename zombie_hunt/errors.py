@@ -11,3 +11,7 @@ class SnapshotError(ZombieHuntError):
 
 class PlanError(ZombieHuntError):
     """A quarantine plan cannot be written for the named entry."""
+
+
+class JudgmentError(ZombieHuntError):
+    """A recorded kill call fixture is outside the recorded shape."""
