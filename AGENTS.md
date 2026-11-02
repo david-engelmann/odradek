@@ -59,3 +59,5 @@ This repo is zombie-hunt. Its contract lives in CONTRACT.md and that file is the
 Boundary. Zombie-hunt proves each kill before it fires and starts from a reversible quarantine. It never acts on a live cluster in its first slices, and a quarantine of anything real is an operator decision that waits for approval through the program, never an automated act.
 
 First slice. A scan of one recorded cluster snapshot producing the suspect list with evidence per suspect, and a reversible quarantine plan for one proven zombie, built and proven against synthetic recorded state only.
+
+Identity exception. The maintainer identity in the required Signed-off-by trailer is the repo owner's public sign-off identity. It is permitted in commit metadata and in that instruction, and the sanitization rule does not apply to it.
