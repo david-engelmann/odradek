@@ -13,5 +13,9 @@ class PlanError(ZombieHuntError):
     """A quarantine plan cannot be written for the named entry."""
 
 
+class ObserveError(ZombieHuntError):
+    """An observation report cannot be written for the named entry."""
+
+
 class JudgmentError(ZombieHuntError):
     """A recorded kill call fixture is outside the recorded shape."""

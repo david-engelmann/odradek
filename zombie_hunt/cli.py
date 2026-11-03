@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .errors import ZombieHuntError
 from .judgment import FixturePlayer
+from .observe import build_observation
 from .plan import build_plan
 from .scan import classify, format_scan
 from .snapshot import parse_snapshot
@@ -30,8 +31,9 @@ def main(argv=None):
     parser = argparse.ArgumentParser(
         prog="zombie_hunt",
         description=(
-            "Reads one recorded cluster snapshot and prints the "
-            "scan or a quarantine plan. Executes nothing."
+            "Reads recorded cluster snapshots and prints the "
+            "scan, a quarantine plan, or an observation report. "
+            "Executes nothing."
         ),
     )
     sub = parser.add_subparsers(dest="command", required=True)
@@ -41,19 +43,34 @@ def main(argv=None):
     plan_parser.add_argument("snapshot")
     plan_parser.add_argument("entry_id")
     plan_parser.add_argument("--fixtures")
+    observe_parser = sub.add_parser("observe")
+    observe_parser.add_argument("earlier")
+    observe_parser.add_argument("later")
+    observe_parser.add_argument("entry_id")
     args = parser.parse_args(argv)
     try:
-        snapshot = parse_snapshot(_read(args.snapshot), args.snapshot)
-        verdicts = classify(snapshot)
-        if args.command == "scan":
-            document = format_scan(snapshot, verdicts)
-        else:
-            source = None
-            if args.fixtures is not None:
-                source = FixturePlayer(args.fixtures)
-            document = build_plan(
-                snapshot, verdicts, args.entry_id, source
+        if args.command == "observe":
+            earlier = parse_snapshot(
+                _read(args.earlier), args.earlier
             )
+            later = parse_snapshot(_read(args.later), args.later)
+            document = build_observation(
+                earlier, later, classify(earlier), args.entry_id
+            )
+        else:
+            snapshot = parse_snapshot(
+                _read(args.snapshot), args.snapshot
+            )
+            verdicts = classify(snapshot)
+            if args.command == "scan":
+                document = format_scan(snapshot, verdicts)
+            else:
+                source = None
+                if args.fixtures is not None:
+                    source = FixturePlayer(args.fixtures)
+                document = build_plan(
+                    snapshot, verdicts, args.entry_id, source
+                )
     except ZombieHuntError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2

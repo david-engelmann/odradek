@@ -1,0 +1,9 @@
+observation report for stale-1
+planned from snapshot 100000
+observed at snapshot 101500
+elapsed 1500 seconds
+observation window 1200 seconds
+outcome quarantine held
+  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded
+  evidence for owner done-run is recorded finished
+executes nothing, this report is a document and the tool performs no part of it

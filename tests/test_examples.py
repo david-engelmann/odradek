@@ -33,6 +33,19 @@ def test_the_example_plan_regenerates_byte_for_byte():
     )
 
 
+def test_the_example_observation_regenerates_byte_for_byte():
+    result = run_cli(
+        "observe",
+        str(EXAMPLES / "snapshot.txt"),
+        str(EXAMPLES / "later-snapshot.txt"),
+        "stale-1",
+    )
+    assert result.returncode == 0
+    assert result.stdout == (EXAMPLES / "observation.txt").read_text(
+        encoding="utf-8"
+    )
+
+
 def test_the_example_session_shows_every_classification():
     scan = (EXAMPLES / "scan.txt").read_text(encoding="utf-8")
     assert "counts live 2 suspect 3 proven 2 settled 1" in scan
