@@ -1,0 +1,1074 @@
+{
+ "cases": [
+  {
+   "name": "scan-example-estate",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-empty-estate",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 5\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 5\ncounts live 0 suspect 0 proven 0 settled 0\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-path-trailing-slash",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt/"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-path-dot-slash",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "./snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-missing-file",
+   "source": "oracle",
+   "setup": {},
+   "argv": [
+    "scan",
+    "ghost.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: the snapshot at ghost.txt cannot be read, No such file or directory\n"
+   }
+  },
+  {
+   "name": "scan-malformed",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot soon\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the snapshot time value 'soon' is not a whole number of seconds\n"
+   }
+  },
+  {
+   "name": "scan-directory",
+   "source": "oracle",
+   "setup": {},
+   "argv": [
+    "scan",
+    "."
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: the snapshot at . cannot be read, Is a directory\n"
+   }
+  },
+  {
+   "name": "plan-stale-1",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-stale-2",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-2"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-2\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach stale-2 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-2\nobservation window 600 seconds\nescalation, if stale-2 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-absent-entry",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "nope-1"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: a plan for nope-1 is refused, no entry in snap.txt carries that identifier, and a plan is written only for a proven zombie in the snapshot\n"
+   }
+  },
+  {
+   "name": "plan-suspect-refusal",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "busy-1"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: a plan for busy-1 is refused, the entry is classified suspect, and a plan is written only for a proven zombie\n"
+   }
+  },
+  {
+   "name": "plan-fixtures-quarantine",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/kill-call-derelict-3-abstention.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-3\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 4000 seconds reaches the proof threshold of 600 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"kind\": \"abstention\"\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-derelict-4-below-threshold.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-4\",\n    \"in-flight\": {\n      \"evidence\": \"holds ledger with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner closer-2 is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 75 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.45,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.45,\n      \"spare\": 0.2,\n      \"watch\": 0.35\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-orphan-9-spare.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"orphan-9\",\n    \"in-flight\": {\n      \"evidence\": \"holds queue-token with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 900 seconds reaches the proof threshold of 135 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"spare\",\n    \"confidence\": 0.75,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.15,\n      \"spare\": 0.75,\n      \"watch\": 0.1\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-2-watch.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-2\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-fixtures-watch",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/kill-call-derelict-3-abstention.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-3\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 4000 seconds reaches the proof threshold of 600 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"kind\": \"abstention\"\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-derelict-4-below-threshold.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-4\",\n    \"in-flight\": {\n      \"evidence\": \"holds ledger with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner closer-2 is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 75 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.45,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.45,\n      \"spare\": 0.2,\n      \"watch\": 0.35\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-orphan-9-spare.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"orphan-9\",\n    \"in-flight\": {\n      \"evidence\": \"holds queue-token with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 900 seconds reaches the proof threshold of 135 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"spare\",\n    \"confidence\": 0.75,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.15,\n      \"spare\": 0.75,\n      \"watch\": 0.1\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-2-watch.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-2\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-2",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-2\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach stale-2 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-2\nobservation window 600 seconds\nescalation, if stale-2 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict watch with confidence 0.8\nverdict leaves this plan unadvanced, no action follows from this answer, and the plan stands as written for an operator to read\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-fixtures-spare",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 500000\nentry orphan-9\nkind run\nstarter cron-9\nstate running\nsignal-interval 45\nlast-signal 499100\nholds queue-token\nowner gone-1\nentry derelict-3\nkind process\nstarter scheduler-3\nstate running\nsignal-interval 200\nlast-signal 496000\nholds none\nowner gone-1\nentry derelict-4\nkind process\nstarter scheduler-3\nstate running\nsignal-interval 25\nlast-signal 499000\nholds ledger\nowner closer-2\nentry closer-2\nkind run\nstarter supervisor-3\nstate finished\nsignal-interval 60\nlast-signal 490000\nholds none\nowner none\n",
+    "fixtures/kill-call-derelict-3-abstention.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-3\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 4000 seconds reaches the proof threshold of 600 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"kind\": \"abstention\"\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-derelict-4-below-threshold.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-4\",\n    \"in-flight\": {\n      \"evidence\": \"holds ledger with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner closer-2 is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 75 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.45,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.45,\n      \"spare\": 0.2,\n      \"watch\": 0.35\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-orphan-9-spare.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"orphan-9\",\n    \"in-flight\": {\n      \"evidence\": \"holds queue-token with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 900 seconds reaches the proof threshold of 135 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"spare\",\n    \"confidence\": 0.75,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.15,\n      \"spare\": 0.75,\n      \"watch\": 0.1\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-2-watch.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-2\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "orphan-9",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for orphan-9\nclassification proven zombie\nproof\n  evidence for signal age 900 seconds reaches the proof threshold of 135 seconds\n  evidence for owner gone-1 is absent from the snapshot\n  evidence for holds queue-token with no in-flight marker\nstep 1 reversible, detach orphan-9 from cron-9 so no new work reaches it\nstep 2 reversible, fence the recorded holds, queue-token, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from orphan-9\nobservation window 450 seconds\nescalation, if orphan-9 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict spare with confidence 0.75\nverdict leaves this plan unadvanced, no action follows from this answer, and the plan stands as written for an operator to read\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-fixtures-abstention",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 500000\nentry orphan-9\nkind run\nstarter cron-9\nstate running\nsignal-interval 45\nlast-signal 499100\nholds queue-token\nowner gone-1\nentry derelict-3\nkind process\nstarter scheduler-3\nstate running\nsignal-interval 200\nlast-signal 496000\nholds none\nowner gone-1\nentry derelict-4\nkind process\nstarter scheduler-3\nstate running\nsignal-interval 25\nlast-signal 499000\nholds ledger\nowner closer-2\nentry closer-2\nkind run\nstarter supervisor-3\nstate finished\nsignal-interval 60\nlast-signal 490000\nholds none\nowner none\n",
+    "fixtures/kill-call-derelict-3-abstention.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-3\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 4000 seconds reaches the proof threshold of 600 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"kind\": \"abstention\"\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-derelict-4-below-threshold.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-4\",\n    \"in-flight\": {\n      \"evidence\": \"holds ledger with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner closer-2 is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 75 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.45,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.45,\n      \"spare\": 0.2,\n      \"watch\": 0.35\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-orphan-9-spare.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"orphan-9\",\n    \"in-flight\": {\n      \"evidence\": \"holds queue-token with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 900 seconds reaches the proof threshold of 135 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"spare\",\n    \"confidence\": 0.75,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.15,\n      \"spare\": 0.75,\n      \"watch\": 0.1\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-2-watch.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-2\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "derelict-3",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for derelict-3\nclassification proven zombie\nproof\n  evidence for signal age 4000 seconds reaches the proof threshold of 600 seconds\n  evidence for owner gone-1 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach derelict-3 from scheduler-3 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from derelict-3\nobservation window 2000 seconds\nescalation, if derelict-3 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-fixtures-below-threshold",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 500000\nentry orphan-9\nkind run\nstarter cron-9\nstate running\nsignal-interval 45\nlast-signal 499100\nholds queue-token\nowner gone-1\nentry derelict-3\nkind process\nstarter scheduler-3\nstate running\nsignal-interval 200\nlast-signal 496000\nholds none\nowner gone-1\nentry derelict-4\nkind process\nstarter scheduler-3\nstate running\nsignal-interval 25\nlast-signal 499000\nholds ledger\nowner closer-2\nentry closer-2\nkind run\nstarter supervisor-3\nstate finished\nsignal-interval 60\nlast-signal 490000\nholds none\nowner none\n",
+    "fixtures/kill-call-derelict-3-abstention.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-3\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 4000 seconds reaches the proof threshold of 600 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"kind\": \"abstention\"\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-derelict-4-below-threshold.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-4\",\n    \"in-flight\": {\n      \"evidence\": \"holds ledger with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner closer-2 is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 75 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.45,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.45,\n      \"spare\": 0.2,\n      \"watch\": 0.35\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-orphan-9-spare.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"orphan-9\",\n    \"in-flight\": {\n      \"evidence\": \"holds queue-token with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 900 seconds reaches the proof threshold of 135 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"spare\",\n    \"confidence\": 0.75,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.15,\n      \"spare\": 0.75,\n      \"watch\": 0.1\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-2-watch.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-2\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "derelict-4",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for derelict-4\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 75 seconds\n  evidence for owner closer-2 is recorded finished\n  evidence for holds ledger with no in-flight marker\nstep 1 reversible, detach derelict-4 from scheduler-3 so no new work reaches it\nstep 2 reversible, fence the recorded holds, ledger, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from derelict-4\nobservation window 250 seconds\nescalation, if derelict-4 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-fixtures-dir-slash",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/kill-call-derelict-3-abstention.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-3\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 4000 seconds reaches the proof threshold of 600 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"kind\": \"abstention\"\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-derelict-4-below-threshold.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-4\",\n    \"in-flight\": {\n      \"evidence\": \"holds ledger with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner closer-2 is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 75 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.45,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.45,\n      \"spare\": 0.2,\n      \"watch\": 0.35\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-orphan-9-spare.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"orphan-9\",\n    \"in-flight\": {\n      \"evidence\": \"holds queue-token with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 900 seconds reaches the proof threshold of 135 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"spare\",\n    \"confidence\": 0.75,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.15,\n      \"spare\": 0.75,\n      \"watch\": 0.1\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-2-watch.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-2\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures/"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-fixtures-joined",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/kill-call-derelict-3-abstention.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-3\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 4000 seconds reaches the proof threshold of 600 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"kind\": \"abstention\"\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-derelict-4-below-threshold.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-4\",\n    \"in-flight\": {\n      \"evidence\": \"holds ledger with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner closer-2 is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 75 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.45,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.45,\n      \"spare\": 0.2,\n      \"watch\": 0.35\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-orphan-9-spare.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"orphan-9\",\n    \"in-flight\": {\n      \"evidence\": \"holds queue-token with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 900 seconds reaches the proof threshold of 135 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"spare\",\n    \"confidence\": 0.75,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.15,\n      \"spare\": 0.75,\n      \"watch\": 0.1\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-2-watch.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-2\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures=fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-fixtures-abbrev",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/kill-call-derelict-3-abstention.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-3\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 4000 seconds reaches the proof threshold of 600 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"kind\": \"abstention\"\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-derelict-4-below-threshold.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-4\",\n    \"in-flight\": {\n      \"evidence\": \"holds ledger with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner closer-2 is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 75 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.45,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.45,\n      \"spare\": 0.2,\n      \"watch\": 0.35\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-orphan-9-spare.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"orphan-9\",\n    \"in-flight\": {\n      \"evidence\": \"holds queue-token with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 900 seconds reaches the proof threshold of 135 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"spare\",\n    \"confidence\": 0.75,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.15,\n      \"spare\": 0.75,\n      \"watch\": 0.1\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-2-watch.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-2\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixt",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-fixtures-missing-dir",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "absent"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: fixtures directory cannot be read, absent\n"
+   }
+  },
+  {
+   "name": "plan-fixture-not-json",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/bad.json": "not json"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: fixture file is not valid JSON, fixtures/bad.json\n"
+   }
+  },
+  {
+   "name": "plan-fixture-bad-shape",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/bad.json": "{\"synthetic\": false}"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: fixture bad.json is not marked synthetic\n"
+   }
+  },
+  {
+   "name": "plan-fixture-duplicate",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/a.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/b.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: fixture b.json records the same request as an earlier fixture\n"
+   }
+  },
+  {
+   "name": "observe-held",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot 100000\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n",
+    "later.txt": "snapshot 101200\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-watch",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot 100000\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n",
+    "later.txt": "snapshot 100500\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 100500\nelapsed 500 seconds\nobservation window 1200 seconds\noutcome watch still running\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-broken",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot 100000\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n",
+    "later.txt": "snapshot 101500\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 100800\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101500\nelapsed 1500 seconds\nobservation window 1200 seconds\noutcome quarantine broken\n  evidence against the later snapshot records last signal 100800 for the entry, later than the last signal 96400 the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-refusal-class",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot 100000\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n",
+    "later.txt": "snapshot 101200\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "busy-1"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: an observation for busy-1 is refused, the entry is classified suspect in the earlier snapshot, and an observation is written only for a proven zombie\n"
+   }
+  },
+  {
+   "name": "observe-not-later",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot 100000\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n",
+    "later.txt": "snapshot 100000\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: an observation for stale-1 is refused, the later snapshot is recorded at 100000, which is not later than the earlier snapshot time 100000, and an observation reads a snapshot recorded after the one the plan was written from\n"
+   }
+  },
+  {
+   "name": "observe-missing-later",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot 100000\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "ghost.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: the snapshot at ghost.txt cannot be read, No such file or directory\n"
+   }
+  },
+  {
+   "name": "observe-negative-entry",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot 100000\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n",
+    "later.txt": "snapshot 101200\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "-1"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: an observation for -1 is refused, no entry in early.txt carries that identifier, and an observation is written only for a proven zombie in the earlier snapshot\n"
+   }
+  },
+  {
+   "name": "scan-negative-path",
+   "source": "oracle",
+   "setup": {},
+   "argv": [
+    "scan",
+    "-1"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: the snapshot at -1 cannot be read, No such file or directory\n"
+   }
+  },
+  {
+   "name": "scan-separator-value",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "--",
+    "--"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: the snapshot at -- cannot be read, No such file or directory\n"
+   }
+  },
+  {
+   "name": "plan-plain-after-separator",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-fixtures-then-separator-values",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/kill-call-derelict-3-abstention.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-3\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 4000 seconds reaches the proof threshold of 600 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"kind\": \"abstention\"\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-derelict-4-below-threshold.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-4\",\n    \"in-flight\": {\n      \"evidence\": \"holds ledger with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner closer-2 is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 75 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.45,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.45,\n      \"spare\": 0.2,\n      \"watch\": 0.35\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-orphan-9-spare.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"orphan-9\",\n    \"in-flight\": {\n      \"evidence\": \"holds queue-token with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 900 seconds reaches the proof threshold of 135 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"spare\",\n    \"confidence\": 0.75,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.15,\n      \"spare\": 0.75,\n      \"watch\": 0.1\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-2-watch.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-2\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "--fixtures",
+    "fixtures",
+    "snap.txt",
+    "stale-1",
+    "--"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "help-top",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "--help"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "Reads recorded cluster snapshots and prints the scan, a quarantine plan, or an observation report. Executes nothing.\n\nUsage: zombie-hunt [COMMAND]\n\nCommands:\n  scan     \n  plan     \n  observe  \n\nOptions:\n  -h, --help  Print help\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "help-top-abbrev",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "--hel"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "Reads recorded cluster snapshots and prints the scan, a quarantine plan, or an observation report. Executes nothing.\n\nUsage: zombie-hunt [COMMAND]\n\nCommands:\n  scan     \n  plan     \n  observe  \n\nOptions:\n  -h, --help  Print help\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "help-scan",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "scan",
+    "--help"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "Usage: zombie-hunt scan <SNAPSHOT>\n\nArguments:\n  <SNAPSHOT>  \n\nOptions:\n  -h, --help  Print help\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "help-plan",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "plan",
+    "--help"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "Usage: zombie-hunt plan [OPTIONS] <SNAPSHOT> <ENTRY_ID>\n\nArguments:\n  <SNAPSHOT>  \n  <ENTRY_ID>  \n\nOptions:\n      --fixtures <FIXTURES>  \n  -h, --help                 Print help\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "help-observe",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "observe",
+    "--help"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "Usage: zombie-hunt observe <EARLIER> <LATER> <ENTRY_ID>\n\nArguments:\n  <EARLIER>   \n  <LATER>     \n  <ENTRY_ID>  \n\nOptions:\n  -h, --help  Print help\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "help-after-positional",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt",
+    "--help"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "Usage: zombie-hunt scan <SNAPSHOT>\n\nArguments:\n  <SNAPSHOT>  \n\nOptions:\n  -h, --help  Print help\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "help-after-bogus",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "--bogus",
+    "--help"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "Usage: zombie-hunt scan <SNAPSHOT>\n\nArguments:\n  <SNAPSHOT>  \n\nOptions:\n  -h, --help  Print help\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "help-with-argument",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "--help=x"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: unexpected value 'x' for '--help' found; no more were expected\n\nUsage: zombie-hunt --help\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "help-short-with-argument",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "-h=x"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: unexpected value 'x' for '--help' found; no more were expected\n\nUsage: zombie-hunt --help\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "usage-no-args",
+   "source": "clap",
+   "setup": {},
+   "argv": [],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: the invocation does not parse\nUsage: zombie_hunt [COMMAND]\n"
+   }
+  },
+  {
+   "name": "usage-unknown-command",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "wobble"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: unrecognized subcommand 'wobble'\n\nUsage: zombie-hunt [COMMAND]\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "usage-scan-missing",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "scan"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: the following required arguments were not provided:\n  <SNAPSHOT>\n\nUsage: zombie-hunt scan <SNAPSHOT>\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "usage-scan-surplus",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: unexpected argument 'snap.txt' found\n\nUsage: zombie-hunt scan <SNAPSHOT>\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "usage-plan-missing-entry",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: the following required arguments were not provided:\n  <ENTRY_ID>\n\nUsage: zombie-hunt plan <SNAPSHOT> <ENTRY_ID>\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "usage-plan-missing-flag-value",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: a value is required for '--fixtures <FIXTURES>' but none was supplied\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "usage-plan-pending-help",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "--help"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: a value is required for '--fixtures <FIXTURES>' but none was supplied\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "usage-trailing-veto",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/kill-call-derelict-3-abstention.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-3\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 4000 seconds reaches the proof threshold of 600 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"kind\": \"abstention\"\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-derelict-4-below-threshold.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-4\",\n    \"in-flight\": {\n      \"evidence\": \"holds ledger with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner closer-2 is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 75 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.45,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.45,\n      \"spare\": 0.2,\n      \"watch\": 0.35\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-orphan-9-spare.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"orphan-9\",\n    \"in-flight\": {\n      \"evidence\": \"holds queue-token with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 900 seconds reaches the proof threshold of 135 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"spare\",\n    \"confidence\": 0.75,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.15,\n      \"spare\": 0.75,\n      \"watch\": 0.1\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-2-watch.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-2\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures",
+    "--"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: unexpected argument '--' found\n\nUsage: zombie-hunt plan [OPTIONS] <SNAPSHOT> <ENTRY_ID>\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "usage-scan-fixtures-flag",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: unexpected argument '--fixtures' found\n\n  tip: to pass '--fixtures' as a value, use '-- --fixtures'\n\nUsage: zombie-hunt scan <SNAPSHOT>\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "usage-observe-fixtures-flag",
+   "source": "clap",
+   "setup": {
+    "early.txt": "snapshot 100000\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n",
+    "later.txt": "snapshot 101200\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1",
+    "--fixtures",
+    "x"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: unexpected argument '--fixtures' found\n\n  tip: to pass '--fixtures' as a value, use '-- --fixtures'\n\nUsage: zombie-hunt observe <EARLIER> <LATER> <ENTRY_ID>\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "usage-plan-bogus-flag",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--bogus"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: unexpected argument '--bogus' found\n\n  tip: to pass '--bogus' as a value, use '-- --bogus'\n\nUsage: zombie-hunt plan [OPTIONS] <SNAPSHOT> <ENTRY_ID>\n\nFor more information, try '--help'.\n"
+   }
+  },
+  {
+   "name": "uncaught-observe-entry-list",
+   "source": "clap",
+   "setup": {
+    "early.txt": "snapshot 100000\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n",
+    "later.txt": "snapshot 101200\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "--",
+    "--"
+   ],
+   "expect": {
+    "code": 1,
+    "stdout": "",
+    "stderr": "zombie-hunt: an argument arrived as a list where a single entry identifier was expected\n"
+   }
+  },
+  {
+   "name": "uncaught-observe-later-list",
+   "source": "clap",
+   "setup": {
+    "early.txt": "snapshot 100000\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n",
+    "later.txt": "snapshot 101200\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "--",
+    "--",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 1,
+    "stdout": "",
+    "stderr": "zombie-hunt: an argument arrived as a list where a single path was expected\n"
+   }
+  },
+  {
+   "name": "uncaught-plan-entry-list",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/kill-call-derelict-3-abstention.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-3\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 4000 seconds reaches the proof threshold of 600 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"kind\": \"abstention\"\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-derelict-4-below-threshold.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"derelict-4\",\n    \"in-flight\": {\n      \"evidence\": \"holds ledger with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner closer-2 is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 75 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.45,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.45,\n      \"spare\": 0.2,\n      \"watch\": 0.35\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-orphan-9-spare.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"orphan-9\",\n    \"in-flight\": {\n      \"evidence\": \"holds queue-token with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner gone-1 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 900 seconds reaches the proof threshold of 135 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"spare\",\n    \"confidence\": 0.75,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.15,\n      \"spare\": 0.75,\n      \"watch\": 0.1\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-call-stale-2-watch.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-2\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "--fixtures=fixtures",
+    "snap.txt",
+    "--",
+    "--"
+   ],
+   "expect": {
+    "code": 1,
+    "stdout": "",
+    "stderr": "zombie-hunt: an argument arrived as a list where a single entry identifier was expected\n"
+   }
+  },
+  {
+   "name": "uncaught-fixture-ceiling",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/deep.json": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 1,
+    "stdout": "",
+    "stderr": "zombie-hunt: the fixture reader exceeded its nesting ceiling\n"
+   }
+  },
+  {
+   "name": "uncaught-snapshot-digit-limit",
+   "source": "clap",
+   "setup": {
+    "snap.txt": "snapshot 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 1,
+    "stdout": "",
+    "stderr": "zombie-hunt: a snapshot whole number exceeded its digit limit\n"
+   }
+  }
+ ]
+}
