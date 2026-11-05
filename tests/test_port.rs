@@ -1358,7 +1358,11 @@ fn dependency_sets(text: &str) -> (BTreeSet<String>, BTreeSet<String>, BTreeSet<
             _ => &mut shipped,
         };
         if let Some(name) = dotted {
+            // A per dependency table names its crate in the
+            // header; its body keys are that dependency's own
+            // properties, never further crate names.
             target.insert(name);
+            continue;
         }
         body_crate_names(&body, target);
     }
@@ -1417,6 +1421,13 @@ fn the_manifest_places_its_dependencies_as_the_contract_states() {
         shipped.contains("serde_json"),
         "target dotted per dependency form must read"
     );
+    let (shipped, _, _) =
+        dependency_sets("[dependencies.clap]\nversion = \"4\"\nfeatures = [\"derive\"]\n");
+    assert_eq!(
+        shipped,
+        BTreeSet::from(["clap".to_string()]),
+        "a per dependency table names its crate alone, its property keys are not crates"
+    );
     let (_, _, build) = dependency_sets("[build-dependencies]\nserde_json = \"1\"\n");
     assert!(build.contains("serde_json"), "build dependencies must read");
     let (_, dev, _) = dependency_sets("[dev-dependencies.serde]\nversion = \"1\"\n");
@@ -1470,8 +1481,42 @@ fn imported_roots(text: &str) -> Vec<String> {
         let rest = rest.trim_start();
         let rest = rest.strip_prefix("::").unwrap_or(rest);
         if let Some(group) = rest.strip_prefix('{') {
-            let members = group.split('}').next().expect("a group stands");
-            for member in members.split(',') {
+            // The group runs to its own matching close brace,
+            // and its members split on the commas that stand
+            // outside any nested group, so a nested group
+            // cannot end the scan early and hide a later root.
+            let mut depth = 1usize;
+            let mut end = group.len();
+            for (at, ch) in group.char_indices() {
+                match ch {
+                    '{' => depth += 1,
+                    '}' => {
+                        depth -= 1;
+                        if depth == 0 {
+                            end = at;
+                            break;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            let inner = &group[..end];
+            let mut members = Vec::new();
+            let mut member_depth = 0usize;
+            let mut start = 0usize;
+            for (at, ch) in inner.char_indices() {
+                match ch {
+                    '{' => member_depth += 1,
+                    '}' => member_depth -= 1,
+                    ',' if member_depth == 0 => {
+                        members.push(&inner[start..at]);
+                        start = at + 1;
+                    }
+                    _ => {}
+                }
+            }
+            members.push(&inner[start..]);
+            for member in members {
                 let member = member.trim().trim_start_matches("::");
                 let first = first_segment(member);
                 if !first.is_empty() {
@@ -1505,6 +1550,10 @@ fn the_import_scan_resolves_every_use_form() {
     assert_eq!(
         imported_roots("use {anyhow::Result, std::fmt};\n"),
         ["anyhow", "std"]
+    );
+    assert_eq!(
+        imported_roots("use {std::{fmt, io}, anyhow::Result};\n"),
+        ["std", "anyhow"]
     );
     assert_eq!(imported_roots("use ::anyhow::Result;\n"), ["anyhow"]);
 }
