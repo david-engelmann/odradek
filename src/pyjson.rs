@@ -13,7 +13,11 @@
 //! 9991 containers deep loads, and one nested 9992 deep raises
 //! the uncaught family, as does an integer literal of 4301
 //! digits, the sign not counted. Both ceilings are this crate's
-//! own probed values.
+//! own probed values. A grammar failure found while the
+//! reading stands inside 9988 or more containers also raises
+//! the uncaught family, on the container's own reading and on
+//! the string reading alike, while a failure to find a value
+//! at all raises it only inside the full 9991 (ZH-30).
 //!
 //! The writer serves the canonical comparison key of the
 //! judgment seam, sorted keys with the oracle's default
@@ -25,6 +29,13 @@ use crate::pytext::{PyStr, py_float_repr};
 /// The deepest container nesting the reader admits, probed
 /// against the oracle at 9991 admitted and 9992 uncaught.
 pub const MAX_CONTAINER_DEPTH: usize = 9991;
+
+/// The depth at and past which a grammar failure of the
+/// container's own reading or of the string reading raises
+/// the uncaught family instead of answering as an invalid
+/// document, probed against the oracle at 9987 answering and
+/// 9988 raising on every site of that class (ZH-30).
+pub const UNCAUGHT_GRAMMAR_DEPTH: usize = 9988;
 
 /// The most digits of an integer literal the reader converts,
 /// probed against the oracle at 4300 converted and 4301
@@ -101,11 +112,37 @@ impl Value {
 
 /// How a read can fail. A grammar failure is an ordinary
 /// invalid document. The uncaught failure is the reader hitting
-/// a ceiling the oracle never caught.
+/// a ceiling the oracle never caught, or finding a grammar
+/// failure so deep inside the reading that the oracle's own
+/// error raising fails there first (ZH-30).
 #[derive(Debug)]
 pub enum LoadsError {
     Invalid,
     Uncaught(String),
+}
+
+/// A grammar failure of the container's own reading or of
+/// the string reading, found inside `depth` containers
+/// (ZH-30). Past the grammar depth the oracle's parser can
+/// no longer raise its own error there, and the failure
+/// surfaces as the uncaught family instead.
+fn structural_failure(depth: usize) -> LoadsError {
+    if depth >= UNCAUGHT_GRAMMAR_DEPTH {
+        LoadsError::Uncaught(RECURSION_LINE.to_string())
+    } else {
+        LoadsError::Invalid
+    }
+}
+
+/// A failure to find a value at all, found inside `depth`
+/// containers (ZH-30). That failure raises in the oracle's
+/// dispatch, which holds until the full admitted depth.
+fn value_failure(depth: usize) -> LoadsError {
+    if depth >= MAX_CONTAINER_DEPTH {
+        LoadsError::Uncaught(RECURSION_LINE.to_string())
+    } else {
+        LoadsError::Invalid
+    }
 }
 
 /// The line the port prints for a reader ceiling, its own one
@@ -139,31 +176,36 @@ impl Parser {
         match self.peek() {
             Some(0x7B) => self.parse_object(depth),
             Some(0x5B) => self.parse_array(depth),
-            Some(0x22) => Ok(Value::Str(self.parse_string()?)),
-            Some(0x74) => self.parse_literal("true", Value::Bool(true)),
-            Some(0x66) => self.parse_literal("false", Value::Bool(false)),
-            Some(0x6E) => self.parse_literal("null", Value::Null),
-            Some(0x4E) => self.parse_literal("NaN", Value::Float(f64::NAN)),
-            Some(0x49) => self.parse_literal("Infinity", Value::Float(f64::INFINITY)),
+            Some(0x22) => Ok(Value::Str(self.parse_string(depth)?)),
+            Some(0x74) => self.parse_literal("true", Value::Bool(true), depth),
+            Some(0x66) => self.parse_literal("false", Value::Bool(false), depth),
+            Some(0x6E) => self.parse_literal("null", Value::Null, depth),
+            Some(0x4E) => self.parse_literal("NaN", Value::Float(f64::NAN), depth),
+            Some(0x49) => self.parse_literal("Infinity", Value::Float(f64::INFINITY), depth),
             Some(0x2D) => {
                 if self.points[self.index + 1..].starts_with(&[0x49]) {
-                    self.parse_literal("-Infinity", Value::Float(f64::NEG_INFINITY))
+                    self.parse_literal("-Infinity", Value::Float(f64::NEG_INFINITY), depth)
                 } else {
-                    self.parse_number()
+                    self.parse_number(depth)
                 }
             }
-            Some(point) if point == 0x2B || Self::is_digit(point) => self.parse_number(),
-            _ => Err(LoadsError::Invalid),
+            Some(point) if point == 0x2B || Self::is_digit(point) => self.parse_number(depth),
+            _ => Err(value_failure(depth)),
         }
     }
 
-    fn parse_literal(&mut self, word: &str, value: Value) -> Result<Value, LoadsError> {
+    fn parse_literal(
+        &mut self,
+        word: &str,
+        value: Value,
+        depth: usize,
+    ) -> Result<Value, LoadsError> {
         let points: Vec<u32> = word.chars().map(|ch| ch as u32).collect();
         if self.points[self.index..].starts_with(&points) {
             self.index += points.len();
             Ok(value)
         } else {
-            Err(LoadsError::Invalid)
+            Err(value_failure(depth))
         }
     }
 
@@ -187,12 +229,12 @@ impl Parser {
         loop {
             self.skip_whitespace();
             if self.peek() != Some(0x22) {
-                return Err(LoadsError::Invalid);
+                return Err(structural_failure(depth));
             }
-            let key = self.parse_string()?;
+            let key = self.parse_string(depth)?;
             self.skip_whitespace();
             if self.peek() != Some(0x3A) {
-                return Err(LoadsError::Invalid);
+                return Err(structural_failure(depth));
             }
             self.index += 1;
             let value = self.parse_value(depth)?;
@@ -209,7 +251,7 @@ impl Parser {
                     self.index += 1;
                     return Ok(Value::Object(pairs));
                 }
-                _ => return Err(LoadsError::Invalid),
+                _ => return Err(structural_failure(depth)),
             }
         }
     }
@@ -235,20 +277,20 @@ impl Parser {
                     self.index += 1;
                     return Ok(Value::Array(items));
                 }
-                _ => return Err(LoadsError::Invalid),
+                _ => return Err(structural_failure(depth)),
             }
         }
     }
 
-    fn parse_hex4(&mut self) -> Result<u32, LoadsError> {
+    fn parse_hex4(&mut self, depth: usize) -> Result<u32, LoadsError> {
         let mut value: u32 = 0;
         for _ in 0..4 {
-            let point = self.peek().ok_or(LoadsError::Invalid)?;
+            let point = self.peek().ok_or_else(|| structural_failure(depth))?;
             let digit = match point {
                 0x30..=0x39 => point - 0x30,
                 0x61..=0x66 => point - 0x61 + 10,
                 0x41..=0x46 => point - 0x41 + 10,
-                _ => return Err(LoadsError::Invalid),
+                _ => return Err(structural_failure(depth)),
             };
             value = value * 16 + digit;
             self.index += 1;
@@ -256,16 +298,16 @@ impl Parser {
         Ok(value)
     }
 
-    fn parse_string(&mut self) -> Result<PyStr, LoadsError> {
+    fn parse_string(&mut self, depth: usize) -> Result<PyStr, LoadsError> {
         self.index += 1;
         let mut points: Vec<u32> = Vec::new();
         loop {
-            let point = self.peek().ok_or(LoadsError::Invalid)?;
+            let point = self.peek().ok_or_else(|| structural_failure(depth))?;
             self.index += 1;
             match point {
                 0x22 => return Ok(PyStr(points)),
                 0x5C => {
-                    let escape = self.peek().ok_or(LoadsError::Invalid)?;
+                    let escape = self.peek().ok_or_else(|| structural_failure(depth))?;
                     self.index += 1;
                     match escape {
                         0x22 => points.push(0x22),
@@ -277,14 +319,14 @@ impl Parser {
                         0x72 => points.push(0x0D),
                         0x74 => points.push(0x09),
                         0x75 => {
-                            let first = self.parse_hex4()?;
+                            let first = self.parse_hex4(depth)?;
                             if (0xD800..=0xDBFF).contains(&first) {
                                 let saved = self.index;
                                 if self.peek() == Some(0x5C)
                                     && self.points.get(self.index + 1) == Some(&0x75)
                                 {
                                     self.index += 2;
-                                    if let Ok(second) = self.parse_hex4()
+                                    if let Ok(second) = self.parse_hex4(depth)
                                         && (0xDC00..=0xDFFF).contains(&second)
                                     {
                                         points.push(
@@ -299,23 +341,25 @@ impl Parser {
                                 points.push(first);
                             }
                         }
-                        _ => return Err(LoadsError::Invalid),
+                        _ => return Err(structural_failure(depth)),
                     }
                 }
-                0x00..=0x1F => return Err(LoadsError::Invalid),
+                0x00..=0x1F => return Err(structural_failure(depth)),
                 _ => points.push(point),
             }
         }
     }
 
-    fn parse_number(&mut self) -> Result<Value, LoadsError> {
+    fn parse_number(&mut self, depth: usize) -> Result<Value, LoadsError> {
         let start = self.index;
         if self.peek() == Some(0x2D) {
             self.index += 1;
         }
         // The integer part: a single zero, or a non zero digit
         // and any digits. A leading zero before more digits is a
-        // grammar failure, never the digit limit.
+        // grammar failure, never the digit limit. No integer
+        // part at all means the number does not begin, a failure
+        // to find a value (ZH-30).
         match self.peek() {
             Some(0x30) => {
                 self.index += 1;
@@ -325,30 +369,34 @@ impl Parser {
                     self.index += 1;
                 }
             }
-            _ => return Err(LoadsError::Invalid),
+            _ => return Err(value_failure(depth)),
         }
+        // The fraction and the exponent stand only when a
+        // digit follows them, as the oracle's matcher reads
+        // them. A number that begins and then breaks off ends
+        // at its longest whole prefix, and the failure is the
+        // container's delimiter failure, not the number's.
         let mut is_float = false;
-        if self.peek() == Some(0x2E) {
+        if self.peek() == Some(0x2E)
+            && matches!(self.points.get(self.index + 1), Some(digit) if Self::is_digit(*digit))
+        {
             is_float = true;
             self.index += 1;
-            if !matches!(self.peek(), Some(digit) if Self::is_digit(digit)) {
-                return Err(LoadsError::Invalid);
-            }
             while matches!(self.peek(), Some(digit) if Self::is_digit(digit)) {
                 self.index += 1;
             }
         }
         if matches!(self.peek(), Some(0x65 | 0x45)) {
-            is_float = true;
-            self.index += 1;
-            if matches!(self.peek(), Some(0x2B | 0x2D)) {
-                self.index += 1;
+            let mut probe = self.index + 1;
+            if matches!(self.points.get(probe), Some(0x2B | 0x2D)) {
+                probe += 1;
             }
-            if !matches!(self.peek(), Some(digit) if Self::is_digit(digit)) {
-                return Err(LoadsError::Invalid);
-            }
-            while matches!(self.peek(), Some(digit) if Self::is_digit(digit)) {
-                self.index += 1;
+            if matches!(self.points.get(probe), Some(digit) if Self::is_digit(*digit)) {
+                is_float = true;
+                self.index = probe;
+                while matches!(self.peek(), Some(digit) if Self::is_digit(digit)) {
+                    self.index += 1;
+                }
             }
         }
         let text: String = self.points[start..self.index]

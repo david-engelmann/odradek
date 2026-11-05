@@ -1,7 +1,9 @@
 //! The proof rules, the classification, and the scan document.
 
+use crate::bignum::BigNum;
+use crate::errors::{Error, Result};
 use crate::pytext::PyStr;
-use crate::snapshot::{Entry, IN_FLIGHT, Snapshot};
+use crate::snapshot::{Entry, IN_FLIGHT, MAX_WHOLE_DIGITS, Snapshot};
 
 pub const SATISFIED: &str = "satisfied";
 pub const CONTRADICTED: &str = "contradicted";
@@ -13,6 +15,23 @@ pub const PROVEN: &str = "proven zombie";
 pub const SETTLED: &str = "settled";
 
 pub const PROOF_MULTIPLE: u32 = 3;
+
+/// The line the port prints when a computed count passes the
+/// digit limit in print, its own one line standing where the
+/// oracle printed a traceback.
+pub const COMPUTED_DIGIT_LINE: &str =
+    "zombie-hunt: a computed count exceeded the integer digit limit";
+
+/// The digit limit binds the print of a computed count as it
+/// binds a conversion (ZH-31). A computed count whose decimal
+/// form carries more digits than the limit raises the
+/// uncaught family at the print that would carry it.
+pub fn check_computed(value: &BigNum) -> Result<()> {
+    if value.as_str().len() > MAX_WHOLE_DIGITS {
+        return Err(Error::Uncaught(COMPUTED_DIGIT_LINE.to_string()));
+    }
+    Ok(())
+}
 
 /// One proof rule's outcome for one entry, with the recorded
 /// fact the outcome rests on.
@@ -41,29 +60,35 @@ impl Verdict<'_> {
     }
 }
 
-fn signal_rule(snapshot: &Snapshot, entry: &Entry) -> RuleVerdict {
+fn signal_rule(snapshot: &Snapshot, entry: &Entry) -> Result<RuleVerdict> {
     let threshold = entry.signal_interval.mul_small(PROOF_MULTIPLE);
     let Some(last_signal) = &entry.last_signal else {
-        return RuleVerdict {
+        return Ok(RuleVerdict {
             status: UNKNOWN,
             fact: "no signal is recorded for this entry".to_string(),
-        };
+        });
     };
+    // The fact string prints the threshold, so the print
+    // limit is checked where the oracle's formatting raises,
+    // at the classification of this entry (ZH-31). An entry
+    // with no recorded signal prints no threshold and the
+    // check never runs for it.
+    check_computed(&threshold)?;
     let age = snapshot.time.sub(last_signal);
     if age >= threshold {
-        RuleVerdict {
+        Ok(RuleVerdict {
             status: SATISFIED,
             fact: format!(
                 "signal age {age} seconds reaches the proof threshold of {threshold} seconds"
             ),
-        }
+        })
     } else {
-        RuleVerdict {
+        Ok(RuleVerdict {
             status: CONTRADICTED,
             fact: format!(
                 "signal age {age} seconds is under the proof threshold of {threshold} seconds"
             ),
-        }
+        })
     }
 }
 
@@ -124,8 +149,8 @@ fn in_flight_rule(_snapshot: &Snapshot, entry: &Entry) -> RuleVerdict {
 }
 
 /// Classify one entry under the proof rules and nothing else.
-pub fn classify_entry<'a>(snapshot: &'a Snapshot, entry: &'a Entry) -> Verdict<'a> {
-    let signal = signal_rule(snapshot, entry);
+pub fn classify_entry<'a>(snapshot: &'a Snapshot, entry: &'a Entry) -> Result<Verdict<'a>> {
+    let signal = signal_rule(snapshot, entry)?;
     let owner = owner_rule(snapshot, entry);
     let in_flight = in_flight_rule(snapshot, entry);
     let live = match &entry.last_signal {
@@ -144,17 +169,17 @@ pub fn classify_entry<'a>(snapshot: &'a Snapshot, entry: &'a Entry) -> Verdict<'
     } else {
         SUSPECT
     };
-    Verdict {
+    Ok(Verdict {
         entry,
         classification,
         signal,
         owner,
         in_flight,
-    }
+    })
 }
 
 /// Classify every entry in the snapshot, in recorded order.
-pub fn classify(snapshot: &Snapshot) -> Vec<Verdict<'_>> {
+pub fn classify(snapshot: &Snapshot) -> Result<Vec<Verdict<'_>>> {
     snapshot
         .entries
         .iter()

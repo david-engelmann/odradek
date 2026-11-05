@@ -25,7 +25,7 @@ fn observe(
     .expect("earlier parses");
     let later = parse_snapshot(&PyStr::from_str(later_text), &PyStr::from_str("later.txt"))
         .expect("later parses");
-    let verdicts = classify(&earlier);
+    let verdicts = classify(&earlier).expect("classification stands");
     build_observation(&earlier, &later, &verdicts, &PyStr::from_str(entry_id))
 }
 
@@ -117,7 +117,9 @@ fn a_settled_later_entry_that_signalled_broke_the_watch() {
         .entry(&PyStr::from_str("stale-1"))
         .expect("entry stands");
     assert_eq!(
-        classify_entry(&later_snapshot, entry).classification,
+        classify_entry(&later_snapshot, entry)
+            .expect("classification stands")
+            .classification,
         "settled"
     );
     let document = observe(EARLIER_TEXT, &later, "stale-1").expect("observation");

@@ -311,13 +311,439 @@ fn a_huge_snapshot_time_prints_in_full_and_ages_exactly() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+// The computed print limit, ZH-31, through the real binary.
+// The digit limit binds the print of a computed count as it
+// binds a conversion, at the threshold print inside
+// classification and at the window print in the plan and the
+// observation report.
+
+const COMPUTED_LINE: &str = "zombie-hunt: a computed count exceeded the integer digit limit\n";
+
+fn big_entry(id: &str, interval: &str, last_signal: &str, owner: &str) -> String {
+    format!(
+        "entry {id}\nkind process\nstarter s-1\nstate running\nsignal-interval {interval}\nlast-signal {last_signal}\nholds none\nowner {owner}\n"
+    )
+}
+
+fn big_snapshot(time: &str, entries: &str) -> String {
+    format!("snapshot {time}\n{entries}")
+}
+
+#[test]
+fn a_threshold_at_the_digit_limit_prints_in_full() {
+    let dir = test_dir("port-threshold-at");
+    let text = big_snapshot(
+        &"9".repeat(4300),
+        &big_entry("a", &"3".repeat(4300), "0", "ghost"),
+    );
+    let snap = write(&dir, "snap.txt", &text);
+    let outcome = run_cli(&["scan", snap.to_str().expect("utf8")], &dir);
+    assert_eq!(outcome.code, 0);
+    assert!(
+        outcome
+            .stdout_text()
+            .contains(&format!("proof threshold of {} seconds", "9".repeat(4300))),
+        "the threshold of 4300 nines prints in full"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_threshold_past_the_digit_limit_is_the_uncaught_family() {
+    let dir = test_dir("port-threshold-over");
+    let text = big_snapshot(
+        &"9".repeat(4300),
+        &big_entry("a", &format!("{}4", "3".repeat(4299)), "0", "ghost"),
+    );
+    let snap = write(&dir, "snap.txt", &text);
+    let outcome = run_cli(&["scan", snap.to_str().expect("utf8")], &dir);
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stdout_text(), "");
+    assert_eq!(outcome.stderr_text(), COMPUTED_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn an_entry_with_no_recorded_signal_prints_no_threshold() {
+    // The same over limit interval with no recorded signal
+    // never reaches the threshold print, and the scan stands.
+    let dir = test_dir("port-threshold-unprinted");
+    let text = big_snapshot(
+        &"9".repeat(4300),
+        &big_entry("a", &"4".repeat(4300), "none", "ghost"),
+    );
+    let snap = write(&dir, "snap.txt", &text);
+    let outcome = run_cli(&["scan", snap.to_str().expect("utf8")], &dir);
+    assert_eq!(outcome.code, 0);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn an_unrelated_entry_past_the_threshold_limit_kills_the_scan() {
+    // Classification runs over every entry before any
+    // document exists, so one over limit entry kills a scan
+    // whose other entries are ordinary.
+    let dir = test_dir("port-threshold-unrelated");
+    let text = big_snapshot(
+        "100000",
+        &format!(
+            "{}{}",
+            big_entry("ok", "60", "10", "ghost"),
+            big_entry("big", &format!("{}4", "3".repeat(4299)), "0", "ghost")
+        ),
+    );
+    let snap = write(&dir, "snap.txt", &text);
+    let outcome = run_cli(&["scan", snap.to_str().expect("utf8")], &dir);
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stdout_text(), "");
+    assert_eq!(outcome.stderr_text(), COMPUTED_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_window_at_the_digit_limit_prints_in_full() {
+    let dir = test_dir("port-window-at");
+    let interval = format!("1{}", "0".repeat(4298));
+    let text = big_snapshot(&"9".repeat(4300), &big_entry("z", &interval, "0", "ghost"));
+    let snap = write(&dir, "snap.txt", &text);
+    let outcome = run_cli(&["plan", snap.to_str().expect("utf8"), "z"], &dir);
+    assert_eq!(outcome.code, 0);
+    let window = format!("1{}", "0".repeat(4299));
+    assert!(
+        outcome
+            .stdout_text()
+            .contains(&format!("observation window {window} seconds")),
+        "the window of 4300 digits prints in full"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_window_past_the_digit_limit_is_the_uncaught_family_in_a_plan() {
+    let dir = test_dir("port-window-over-plan");
+    let interval = format!("1{}", "0".repeat(4299));
+    let text = big_snapshot(&"9".repeat(4300), &big_entry("z", &interval, "0", "ghost"));
+    let snap = write(&dir, "snap.txt", &text);
+    let outcome = run_cli(&["plan", snap.to_str().expect("utf8"), "z"], &dir);
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stdout_text(), "");
+    assert_eq!(outcome.stderr_text(), COMPUTED_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn classification_past_the_limit_precedes_a_plan_refusal() {
+    // The plan refusal for an absent entry stands behind the
+    // classification, so the over limit entry kills the run
+    // before the refusal can answer.
+    let dir = test_dir("port-plan-classify-first");
+    let text = big_snapshot(
+        "100000",
+        &format!(
+            "{}{}",
+            big_entry("ok", "60", "10", "ghost"),
+            big_entry("big", &format!("{}4", "3".repeat(4299)), "0", "ghost")
+        ),
+    );
+    let snap = write(&dir, "snap.txt", &text);
+    let outcome = run_cli(&["plan", snap.to_str().expect("utf8"), "nope"], &dir);
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stderr_text(), COMPUTED_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_window_past_the_digit_limit_is_the_uncaught_family_in_an_observation() {
+    // The window line prints ahead of either outcome, so the
+    // report dies at the print even with the window unreached.
+    let dir = test_dir("port-window-over-observe");
+    let interval = format!("1{}", "0".repeat(4299));
+    let earlier = write(
+        &dir,
+        "earlier.txt",
+        &big_snapshot(
+            &format!("4{}", "0".repeat(4299)),
+            &big_entry("z", &interval, "0", "ghost"),
+        ),
+    );
+    let later = write(
+        &dir,
+        "later.txt",
+        &big_snapshot(
+            &format!("5{}", "0".repeat(4299)),
+            &big_entry("z", &interval, "0", "ghost"),
+        ),
+    );
+    let outcome = run_cli(
+        &[
+            "observe",
+            earlier.to_str().expect("utf8"),
+            later.to_str().expect("utf8"),
+            "z",
+        ],
+        &dir,
+    );
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stdout_text(), "");
+    assert_eq!(outcome.stderr_text(), COMPUTED_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn the_observation_refusal_precedes_the_window_print() {
+    let dir = test_dir("port-observe-refusal-first");
+    let interval = format!("1{}", "0".repeat(4299));
+    let time = format!("4{}", "0".repeat(4299));
+    let earlier = write(
+        &dir,
+        "earlier.txt",
+        &big_snapshot(&time, &big_entry("z", &interval, "0", "ghost")),
+    );
+    let later = write(
+        &dir,
+        "later.txt",
+        &big_snapshot(&time, &big_entry("z", &interval, "0", "ghost")),
+    );
+    let outcome = run_cli(
+        &[
+            "observe",
+            earlier.to_str().expect("utf8"),
+            later.to_str().expect("utf8"),
+            "z",
+        ],
+        &dir,
+    );
+    assert_eq!(outcome.code, 2);
+    assert!(
+        outcome
+            .stderr_text()
+            .contains("is not later than the earlier snapshot time"),
+        "{}",
+        outcome.stderr_text()
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_later_threshold_past_the_limit_is_the_uncaught_family() {
+    // The verdict classifies the later entry again, so its
+    // own threshold print limit applies inside the report.
+    let dir = test_dir("port-later-threshold-over");
+    let earlier = write(
+        &dir,
+        "earlier.txt",
+        &big_snapshot("100000", &big_entry("z", "120", "96400", "ghost")),
+    );
+    let later = write(
+        &dir,
+        "later.txt",
+        &big_snapshot(
+            &"9".repeat(4300),
+            &big_entry("z", &"4".repeat(4300), "0", "ghost"),
+        ),
+    );
+    let outcome = run_cli(
+        &[
+            "observe",
+            earlier.to_str().expect("utf8"),
+            later.to_str().expect("utf8"),
+            "z",
+        ],
+        &dir,
+    );
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stdout_text(), "");
+    assert_eq!(outcome.stderr_text(), COMPUTED_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_later_threshold_is_not_read_before_the_window_reaches() {
+    // With the window unreached the verdict never runs, so
+    // the later entry is never classified and its threshold
+    // is never printed.
+    let dir = test_dir("port-later-threshold-unread");
+    let earlier = write(
+        &dir,
+        "earlier.txt",
+        &big_snapshot("100000", &big_entry("z", "120", "96400", "ghost")),
+    );
+    let later = write(
+        &dir,
+        "later.txt",
+        &big_snapshot("100100", &big_entry("z", &"4".repeat(4300), "0", "ghost")),
+    );
+    let outcome = run_cli(
+        &[
+            "observe",
+            earlier.to_str().expect("utf8"),
+            later.to_str().expect("utf8"),
+            "z",
+        ],
+        &dir,
+    );
+    assert_eq!(outcome.code, 0);
+    assert!(
+        outcome
+            .stdout_text()
+            .contains("outcome watch still running\n")
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+// The deep grammar classes, ZH-30, through the real binary.
+// A grammar failure on the container's own reading or on the
+// string reading raises the uncaught family once the reading
+// stands inside 9988 containers, while a failure to find a
+// value raises it only inside the full 9991.
+
+const RECURSION_LINE: &str = "zombie-hunt: the fixture reader exceeded its nesting ceiling\n";
+
+fn nested_fixture(carrier: &str, depth: usize, core: &str) -> String {
+    let mut opens = String::new();
+    let mut closes: Vec<&str> = Vec::new();
+    for i in 0..depth {
+        if carrier == "object" || (carrier == "mixed" && i % 2 == 1) {
+            opens.push_str("{\"a\":");
+            closes.push("}");
+        } else {
+            opens.push('[');
+            closes.push("]");
+        }
+    }
+    closes.reverse();
+    format!("{opens}{core}{}", closes.concat())
+}
+
+fn deep_plan(dir: &Path, fixture_text: &str) -> (common::Outcome, String) {
+    let fixtures = fixture_dir_with(dir, "deep.json", fixture_text);
+    let (snap, fixtures) = plan_args(dir, &fixtures);
+    let outcome = run_plan(dir, &snap, &fixtures);
+    (outcome, fixtures)
+}
+
+fn invalid_json_line(fixtures: &str) -> String {
+    format!("error: fixture file is not valid JSON, {fixtures}/deep.json\n")
+}
+
+#[test]
+fn a_malformed_core_at_the_ceiling_is_the_uncaught_family() {
+    let dir = test_dir("port-core-malformed-array");
+    let (outcome, _) = deep_plan(&dir, &nested_fixture("array", 9991, "x"));
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stderr_text(), RECURSION_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_malformed_core_at_the_ceiling_in_an_object_is_the_uncaught_family() {
+    let dir = test_dir("port-core-malformed-object");
+    let (outcome, _) = deep_plan(&dir, &nested_fixture("object", 9991, "x"));
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stderr_text(), RECURSION_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_malformed_core_at_the_ceiling_in_a_mixed_carrier_is_the_uncaught_family() {
+    let dir = test_dir("port-core-malformed-mixed");
+    let (outcome, _) = deep_plan(&dir, &nested_fixture("mixed", 9991, "x"));
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stderr_text(), RECURSION_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_malformed_core_below_the_ceiling_refuses_as_invalid() {
+    let dir = test_dir("port-core-malformed-below");
+    let (outcome, fixtures) = deep_plan(&dir, &nested_fixture("array", 9990, "x"));
+    assert_eq!(outcome.code, 2);
+    assert_eq!(outcome.stderr_text(), invalid_json_line(&fixtures));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_delimiter_failure_at_the_grammar_depth_is_the_uncaught_family() {
+    let dir = test_dir("port-delimiter-at-depth");
+    let (outcome, _) = deep_plan(&dir, &nested_fixture("array", 9988, "1 x"));
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stderr_text(), RECURSION_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_delimiter_failure_below_the_grammar_depth_refuses_as_invalid() {
+    let dir = test_dir("port-delimiter-below-depth");
+    let (outcome, fixtures) = deep_plan(&dir, &nested_fixture("array", 9987, "1 x"));
+    assert_eq!(outcome.code, 2);
+    assert_eq!(outcome.stderr_text(), invalid_json_line(&fixtures));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_value_failure_at_the_grammar_depth_still_refuses() {
+    // At the very depth where the delimiter failure raises,
+    // a failure to find a value still refuses, because that
+    // class holds to the full ceiling.
+    let dir = test_dir("port-value-at-grammar-depth");
+    let (outcome, fixtures) = deep_plan(&dir, &nested_fixture("array", 9988, "x"));
+    assert_eq!(outcome.code, 2);
+    assert_eq!(outcome.stderr_text(), invalid_json_line(&fixtures));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_string_failure_at_the_grammar_depth_is_the_uncaught_family() {
+    let dir = test_dir("port-string-at-depth");
+    let (outcome, _) = deep_plan(&dir, &nested_fixture("array", 9988, "\"a\\q\""));
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stderr_text(), RECURSION_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_number_that_breaks_off_fails_as_the_delimiter() {
+    // A number that begins and then breaks off ends at its
+    // longest whole prefix, so its failure is the container's
+    // delimiter failure, at the grammar depth and not above.
+    let dir = test_dir("port-number-breaks-at-depth");
+    let (outcome, _) = deep_plan(&dir, &nested_fixture("array", 9988, "1."));
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stderr_text(), RECURSION_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+    let dir = test_dir("port-number-breaks-shallow");
+    let (outcome, fixtures) = deep_plan(&dir, &nested_fixture("array", 3, "1."));
+    assert_eq!(outcome.code, 2);
+    assert_eq!(outcome.stderr_text(), invalid_json_line(&fixtures));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn the_input_ending_where_a_value_stands_holds_to_the_ceiling() {
+    let dir = test_dir("port-eof-value-below");
+    let (outcome, fixtures) = deep_plan(&dir, &"[".repeat(9990));
+    assert_eq!(outcome.code, 2);
+    assert_eq!(outcome.stderr_text(), invalid_json_line(&fixtures));
+    let _ = std::fs::remove_dir_all(&dir);
+    let dir = test_dir("port-eof-value-at");
+    let (outcome, _) = deep_plan(&dir, &"[".repeat(9991));
+    assert_eq!(outcome.code, 1);
+    assert_eq!(outcome.stderr_text(), RECURSION_LINE);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 // The contracted constants, pinned beside their edges.
 
 #[test]
 fn the_contract_constants_carry_their_values() {
     assert_eq!(zombie_hunt::judgment::CONFIDENCE_THRESHOLD, 0.6);
     assert_eq!(zombie_hunt::pyjson::MAX_CONTAINER_DEPTH, 9991);
+    assert_eq!(zombie_hunt::pyjson::UNCAUGHT_GRAMMAR_DEPTH, 9988);
     assert_eq!(zombie_hunt::pyjson::MAX_INT_DIGITS, 4300);
+    assert_eq!(
+        zombie_hunt::scan::COMPUTED_DIGIT_LINE,
+        "zombie-hunt: a computed count exceeded the integer digit limit"
+    );
     assert_eq!(zombie_hunt::snapshot::MAX_WHOLE_DIGITS, 4300);
     assert_eq!(zombie_hunt::scan::PROOF_MULTIPLE, 3);
     assert_eq!(zombie_hunt::plan::OBSERVATION_MULTIPLE, 10);

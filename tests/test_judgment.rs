@@ -46,7 +46,7 @@ fn pair(request: &str, response: &str) -> String {
 fn verdict_and_snap(text: &str, entry_id: &str) -> (Value, String) {
     let snap = parse_snapshot(&PyStr::from_str(text), &PyStr::from_str("snap.txt"))
         .expect("snapshot parses");
-    let verdicts = classify(&snap);
+    let verdicts = classify(&snap).expect("classification stands");
     let verdict = verdicts
         .iter()
         .find(|held| held.entry.id == PyStr::from_str(entry_id))
@@ -84,7 +84,7 @@ fn plan_with(
         .expect("snapshot parses");
     build_plan(
         &snap,
-        &classify(&snap),
+        &classify(&snap).expect("classification stands"),
         &PyStr::from_str(entry_id),
         Some(source),
     )
@@ -401,7 +401,7 @@ fn a_refused_plan_asks_nothing() {
         .expect("snapshot parses");
         let result = build_plan(
             &snap,
-            &classify(&snap),
+            &classify(&snap).expect("classification stands"),
             &PyStr::from_str(entry_id),
             Some(&spy),
         );
@@ -550,8 +550,13 @@ fn the_committed_player_drives_the_plan_end_to_end() {
         let with_verdict = plan_with(entry_id, &player, SNAPSHOT_B).expect("plan");
         let snap = parse_snapshot(&PyStr::from_str(SNAPSHOT_B), &PyStr::from_str("snap.txt"))
             .expect("snapshot parses");
-        let plain = build_plan(&snap, &classify(&snap), &PyStr::from_str(entry_id), None)
-            .expect("plain plan");
+        let plain = build_plan(
+            &snap,
+            &classify(&snap).expect("classification stands"),
+            &PyStr::from_str(entry_id),
+            None,
+        )
+        .expect("plain plan");
         if entry_id == "orphan-9" {
             assert!(with_verdict.contains("kill call verdict spare"));
             assert_ne!(with_verdict, plain);

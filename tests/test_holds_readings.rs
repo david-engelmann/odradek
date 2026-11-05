@@ -27,19 +27,25 @@ fn player() -> FixturePlayer {
 fn scan_document(text: &str) -> String {
     let snap = parse_snapshot(&PyStr::from_str(text), &PyStr::from_str("snap.txt"))
         .expect("snapshot parses");
-    format_scan(&snap, &classify(&snap))
+    format_scan(&snap, &classify(&snap).expect("classification stands"))
 }
 
 fn plan_document(text: &str, entry_id: &str, source: Option<&dyn JudgmentSource>) -> String {
     let snap = parse_snapshot(&PyStr::from_str(text), &PyStr::from_str("snap.txt"))
         .expect("snapshot parses");
-    build_plan(&snap, &classify(&snap), &PyStr::from_str(entry_id), source).expect("plan")
+    build_plan(
+        &snap,
+        &classify(&snap).expect("classification stands"),
+        &PyStr::from_str(entry_id),
+        source,
+    )
+    .expect("plan")
 }
 
 fn canonical_request(text: &str, entry_id: &str) -> String {
     let snap = parse_snapshot(&PyStr::from_str(text), &PyStr::from_str("snap.txt"))
         .expect("snapshot parses");
-    let verdicts = classify(&snap);
+    let verdicts = classify(&snap).expect("classification stands");
     let verdict = verdicts
         .iter()
         .find(|held| held.entry.id == PyStr::from_str(entry_id))
@@ -111,7 +117,7 @@ fn an_entry_holding_its_own_identifier_is_unremarkable() {
     let text = example.replace(STALE_HOLDS, "holds stale-1\nowner done-run");
     let snap = parse_snapshot(&PyStr::from_str(&text), &PyStr::from_str("snap.txt"))
         .expect("snapshot parses");
-    let verdicts = classify(&snap);
+    let verdicts = classify(&snap).expect("classification stands");
     let verdict = verdicts
         .iter()
         .find(|held| held.entry.id == PyStr::from_str("stale-1"))
@@ -130,7 +136,7 @@ fn an_entry_naming_itself_as_owner_is_at_most_a_suspect() {
     let text = example.replace(STALE_HOLDS, "holds cache\nowner stale-1");
     let snap = parse_snapshot(&PyStr::from_str(&text), &PyStr::from_str("snap.txt"))
         .expect("snapshot parses");
-    let verdicts = classify(&snap);
+    let verdicts = classify(&snap).expect("classification stands");
     let verdict = verdicts
         .iter()
         .find(|held| held.entry.id == PyStr::from_str("stale-1"))

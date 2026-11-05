@@ -3,7 +3,7 @@
 use crate::errors::{Error, Result};
 use crate::plan::OBSERVATION_MULTIPLE;
 use crate::pytext::PyStr;
-use crate::scan::{CONTRADICTED, PROVEN, Verdict, classify_entry};
+use crate::scan::{CONTRADICTED, PROVEN, Verdict, check_computed, classify_entry};
 use crate::snapshot::{Entry, Snapshot};
 
 /// Write the observation report for one plan or refuse.
@@ -48,6 +48,11 @@ pub fn build_observation(
         )));
     }
     let window = entry.signal_interval.mul_small(OBSERVATION_MULTIPLE);
+    // The report prints the window ahead of either outcome,
+    // and the print carries the digit limit (ZH-31), checked
+    // here after the refusals, where the oracle's formatting
+    // of the window line raises.
+    check_computed(&window)?;
     let elapsed = later.time.sub(&earlier.time);
     let mut lines = vec![
         format!("observation report for {}", entry.id),
@@ -59,7 +64,7 @@ pub fn build_observation(
     if elapsed < window {
         lines.push("outcome watch still running".to_string());
     } else {
-        let (outcome, evidence) = verdict_of(earlier, later, entry);
+        let (outcome, evidence) = verdict_of(earlier, later, entry)?;
         lines.push(outcome);
         lines.extend(evidence);
     }
@@ -71,18 +76,25 @@ pub fn build_observation(
 }
 
 /// The held or broken verdict and its evidence lines.
-fn verdict_of(_earlier: &Snapshot, later: &Snapshot, entry: &Entry) -> (String, Vec<String>) {
+fn verdict_of(
+    _earlier: &Snapshot,
+    later: &Snapshot,
+    entry: &Entry,
+) -> Result<(String, Vec<String>)> {
     let Some(later_entry) = later.entry(&entry.id) else {
-        return (
+        return Ok((
             "outcome quarantine held".to_string(),
             vec![
                 "  evidence for the entry is absent from the later snapshot, so no signal from it and no owner for it is recorded there"
                     .to_string(),
             ],
-        );
+        ));
     };
     let mut facts = vec![signal_fact(entry, later_entry)];
-    let owner = classify_entry(later, later_entry).owner;
+    // The verdict classifies the later entry again, so the
+    // later entry's own threshold print limit applies here
+    // (ZH-31), at the classification the oracle runs.
+    let owner = classify_entry(later, later_entry)?.owner;
     let owner_broke = owner.status == CONTRADICTED;
     let label = if owner_broke {
         "evidence against"
@@ -96,10 +108,10 @@ fn verdict_of(_earlier: &Snapshot, later: &Snapshot, entry: &Entry) -> (String, 
     } else {
         "outcome quarantine held"
     };
-    (
+    Ok((
         outcome.to_string(),
         facts.iter().map(|(_, line)| format!("  {line}")).collect(),
-    )
+    ))
 }
 
 /// The signal fact of the watch, in the evidence line style.

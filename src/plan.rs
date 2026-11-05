@@ -3,7 +3,7 @@
 use crate::errors::{Error, Result};
 use crate::judgment::{JudgmentSource, check_answer, confidence_text, kill_call_request, trusted};
 use crate::pytext::PyStr;
-use crate::scan::{PROVEN, Verdict, evidence_lines, holds_text};
+use crate::scan::{PROVEN, Verdict, check_computed, evidence_lines, holds_text};
 use crate::snapshot::Snapshot;
 
 pub const OBSERVATION_MULTIPLE: u32 = 10;
@@ -73,6 +73,10 @@ pub fn build_plan(
         )));
     }
     let window = entry.signal_interval.mul_small(OBSERVATION_MULTIPLE);
+    // The plan prints the window, and the print carries the
+    // digit limit (ZH-31), checked here after the refusals,
+    // where the oracle's formatting of the window line raises.
+    check_computed(&window)?;
     let mut lines = vec![
         format!("quarantine plan for {}", entry.id),
         "classification proven zombie".to_string(),

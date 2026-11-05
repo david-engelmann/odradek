@@ -845,10 +845,10 @@ fn run_assigned(assigned: &Assigned) -> ExitCode {
                 Err(code) => return code,
             };
             match parse_snapshot(&text, &source) {
-                Ok(snapshot) => {
-                    let verdicts = classify(&snapshot);
-                    print_document(&format_scan(&snapshot, &verdicts))
-                }
+                Ok(snapshot) => match classify(&snapshot) {
+                    Ok(verdicts) => print_document(&format_scan(&snapshot, &verdicts)),
+                    Err(error) => answer_library_error(error),
+                },
                 Err(error) => answer_library_error(error),
             }
         }
@@ -861,7 +861,10 @@ fn run_assigned(assigned: &Assigned) -> ExitCode {
                 Ok(snapshot) => snapshot,
                 Err(error) => return answer_library_error(error),
             };
-            let verdicts = classify(&snapshot);
+            let verdicts = match classify(&snapshot) {
+                Ok(verdicts) => verdicts,
+                Err(error) => return answer_library_error(error),
+            };
             let player = match &assigned.fixtures {
                 None => None,
                 Some(directory) => match FixturePlayer::load(directory.as_bytes()) {
@@ -900,7 +903,10 @@ fn run_assigned(assigned: &Assigned) -> ExitCode {
                 Ok(id) => id,
                 Err(code) => return code,
             };
-            let verdicts = classify(&earlier);
+            let verdicts = match classify(&earlier) {
+                Ok(verdicts) => verdicts,
+                Err(error) => return answer_library_error(error),
+            };
             match build_observation(&earlier, &later, &verdicts, &entry_id) {
                 Ok(document) => print_document(&document),
                 Err(error) => answer_library_error(error),

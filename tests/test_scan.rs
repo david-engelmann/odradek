@@ -11,7 +11,7 @@ use common::{EXPECTED_SCAN, SNAPSHOT_TEXT};
 fn scan(text: &str) -> String {
     let snap = parse_snapshot(&PyStr::from_str(text), &PyStr::from_str("snap.txt"))
         .expect("snapshot parses");
-    format_scan(&snap, &classify(&snap))
+    format_scan(&snap, &classify(&snap).expect("classification stands"))
 }
 
 #[test]
@@ -26,7 +26,7 @@ fn no_suspect_is_ever_reported_as_a_zombie() {
         &PyStr::from_str("snap.txt"),
     )
     .expect("snapshot parses");
-    let verdicts = classify(&snap);
+    let verdicts = classify(&snap).expect("classification stands");
     for (id, class) in [
         ("busy-1", "suspect"),
         ("half-1", "suspect"),

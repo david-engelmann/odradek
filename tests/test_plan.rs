@@ -13,7 +13,12 @@ use common::{EXPECTED_PLAN, SNAPSHOT_TEXT};
 fn plan(entry_id: &str, text: &str) -> zombie_hunt::errors::Result<String> {
     let snap = parse_snapshot(&PyStr::from_str(text), &PyStr::from_str("snap.txt"))
         .expect("snapshot parses");
-    build_plan(&snap, &classify(&snap), &PyStr::from_str(entry_id), None)
+    build_plan(
+        &snap,
+        &classify(&snap).expect("classification stands"),
+        &PyStr::from_str(entry_id),
+        None,
+    )
 }
 
 #[test]

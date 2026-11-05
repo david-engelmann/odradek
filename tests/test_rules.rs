@@ -40,7 +40,7 @@ fn verdict_for(text: &str, entry_id: &str) -> Verdict<'static> {
         .iter()
         .find(|e| e.id == PyStr::from_str(entry_id))
         .expect("entry stands");
-    classify_entry(snap, entry)
+    classify_entry(snap, entry).expect("classification stands")
 }
 
 #[test]
