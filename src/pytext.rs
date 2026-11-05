@@ -336,6 +336,142 @@ pub fn py_repr(text: &PyStr) -> String {
     out
 }
 
+/// The exact decimal digits of a positive finite float and
+/// the decimal exponent of its first digit, from the float's
+/// own decomposition. A binary float has a finite exact
+/// decimal expansion, and the repr rule reads that expansion,
+/// so the digits are computed exactly rather than borrowed
+/// from a formatter whose tie reading differs.
+fn exact_digits(magnitude: f64) -> (Vec<u8>, i32) {
+    let bits = magnitude.to_bits();
+    let field = ((bits >> 52) & 0x7FF) as i32;
+    let fraction = bits & ((1u64 << 52) - 1);
+    let (significand, power) = if field == 0 {
+        (fraction, -1074)
+    } else {
+        (fraction + (1u64 << 52), field - 1075)
+    };
+    let mut digits: Vec<u8> = significand
+        .to_string()
+        .bytes()
+        .map(|byte| byte - b'0')
+        .collect();
+    let mut exponent = digits.len() as i32 - 1;
+    if power >= 0 {
+        for _ in 0..power {
+            let mut carry = 0u8;
+            for digit in digits.iter_mut().rev() {
+                let doubled = *digit * 2 + carry;
+                *digit = doubled % 10;
+                carry = doubled / 10;
+            }
+            if carry > 0 {
+                digits.insert(0, carry);
+                exponent += 1;
+            }
+        }
+    } else {
+        for _ in 0..(-power) {
+            let mut carry = 0u32;
+            for digit in digits.iter_mut().rev() {
+                let product = *digit as u32 * 5 + carry;
+                *digit = (product % 10) as u8;
+                carry = product / 10;
+            }
+            while carry > 0 {
+                digits.insert(0, (carry % 10) as u8);
+                carry /= 10;
+                exponent += 1;
+            }
+            exponent -= 1;
+        }
+    }
+    while digits.len() > 1 && digits[digits.len() - 1] == 0 {
+        digits.pop();
+    }
+    (digits, exponent)
+}
+
+/// Whether one candidate digit string at one decimal
+/// exponent parses back to the magnitude.
+fn candidate_round_trips(digits: &[u8], exponent: i32, magnitude: f64) -> bool {
+    let mut text = String::new();
+    text.push((b'0' + digits[0]) as char);
+    if digits.len() > 1 {
+        text.push('.');
+        for digit in &digits[1..] {
+            text.push((b'0' + digit) as char);
+        }
+    }
+    text.push_str(&format!("e{exponent}"));
+    text.parse::<f64>() == Ok(magnitude)
+}
+
+/// A digit string one above the given one, with the carry
+/// out of its leading digit.
+fn incremented(digits: &[u8]) -> (Vec<u8>, i32) {
+    let mut out = digits.to_vec();
+    for digit in out.iter_mut().rev() {
+        if *digit < 9 {
+            *digit += 1;
+            return (out, 0);
+        }
+        *digit = 0;
+    }
+    (vec![1], 1)
+}
+
+/// The shortest digit string that round trips, as the repr
+/// rule chooses it. At each length the two candidates are
+/// the exact expansion truncated and that string incremented,
+/// because every other string of the length stands farther
+/// from the exact value, and where both round trip the
+/// closer one stands, an exact tie resolving to the one
+/// whose last digit is even. The correctly rounded form is
+/// not always a candidate that round trips, at a power of
+/// two whose rounding interval reaches less far below it
+/// than above it, so the choice reads the expansion itself.
+fn shortest_digits(magnitude: f64) -> (String, i32) {
+    let (exact, exponent) = exact_digits(magnitude);
+    for count in 1..=17usize {
+        if count >= exact.len() {
+            let digits: String = exact.iter().map(|digit| (b'0' + digit) as char).collect();
+            return (digits, exponent);
+        }
+        let truncated = &exact[..count];
+        let rest = &exact[count..];
+        let down = candidate_round_trips(truncated, exponent, magnitude);
+        let (up_digits, carry) = incremented(truncated);
+        let up = candidate_round_trips(&up_digits, exponent + carry, magnitude);
+        let chosen = match (down, up) {
+            (true, true) => {
+                let first = rest[0];
+                let beyond = rest[1..].iter().any(|digit| *digit != 0);
+                if first > 5 || (first == 5 && beyond) {
+                    (up_digits, exponent + carry)
+                } else if first < 5 || (first == 5 && truncated[count - 1] % 2 == 0) {
+                    (truncated.to_vec(), exponent)
+                } else {
+                    (up_digits, exponent + carry)
+                }
+            }
+            (true, false) => (truncated.to_vec(), exponent),
+            (false, true) => (up_digits, exponent + carry),
+            (false, false) => continue,
+        };
+        let mut digits: String = chosen
+            .0
+            .iter()
+            .map(|digit| (b'0' + digit) as char)
+            .collect();
+        while digits.len() > 1 && digits.ends_with('0') {
+            digits.pop();
+        }
+        return (digits, chosen.1);
+    }
+    unreachable!("17 significant digits always round trip");
+}
+
 /// The repr of a Python float, the shortest decimal form that
 /// round trips, as repr reads it. Whole values keep one place
 /// after the point, and the exponent form serves values whose
@@ -356,14 +492,7 @@ pub fn py_float_repr(value: f64) -> String {
     }
     let negative = value < 0.0;
     let magnitude = if negative { -value } else { value };
-    // Rust's exponent form is the shortest digit string that
-    // round trips, in the shape d.ddde<exp>.
-    let scientific = format!("{magnitude:e}");
-    let (mantissa, exponent_text) = scientific
-        .split_once('e')
-        .expect("exponent form always carries an exponent");
-    let exponent: i32 = exponent_text.parse().expect("exponent is a number");
-    let digits: String = mantissa.chars().filter(|ch| *ch != '.').collect();
+    let (digits, exponent) = shortest_digits(magnitude);
     let mut out = String::new();
     if negative {
         out.push('-');

@@ -302,6 +302,22 @@ pub fn load_fixture_file(path_bytes: &[u8], name: &PyStr) -> Result<Value> {
     Ok(data)
 }
 
+/// The path of one fixture child, joined as the oracle's
+/// path join joins it (ZH-29). The directory as written
+/// takes one separator and the child name, and no second
+/// separator stands where the directory already ends in
+/// one, so a root directory spelled with one slash names
+/// its children with one slash and a root directory spelled
+/// with two names them with two.
+pub fn joined_fixture_path(directory: &[u8], name: &[u8]) -> Vec<u8> {
+    let mut joined = directory.to_vec();
+    if !joined.is_empty() && !joined.ends_with(b"/") {
+        joined.push(b'/');
+    }
+    joined.extend_from_slice(name);
+    joined
+}
+
 /// Answers kill call requests from the recorded fixtures.
 ///
 /// Every JSON file in the directory holds one fixture pair.
@@ -349,11 +365,7 @@ impl FixturePlayer {
         });
         let mut answers: HashMap<String, Value> = HashMap::new();
         for name_bytes in &names {
-            let mut joined = directory_bytes.to_vec();
-            if !joined.is_empty() {
-                joined.push(b'/');
-            }
-            joined.extend_from_slice(name_bytes);
+            let joined = joined_fixture_path(directory_bytes, name_bytes);
             let name = PyStr::from_surrogateescape(name_bytes);
             let pair = load_fixture_file(&joined, &name)?;
             let key = request_key(pair.get("request").expect("a validated request"));
@@ -399,12 +411,15 @@ pub fn check_answer(response: Option<Value>) -> Option<Value> {
 ///
 /// An abstention and an answer whose confidence falls below
 /// the threshold in the contract both count as no judgment
-/// at all.
+/// at all, and so does an answer outside the recorded shape,
+/// because an answer is trusted only after it passes the
+/// same shape check the fixture player applies at load,
+/// whoever handed the answer back (ZH-17).
 pub fn trusted(response: Option<&Value>) -> bool {
     let Some(response) = response else {
         return false;
     };
-    if !matches!(response, Value::Object(_)) {
+    if validate_response("answer", response).is_err() {
         return false;
     }
     if !matches!(response.get("kind"), Some(Value::Str(text)) if text == &"choice") {

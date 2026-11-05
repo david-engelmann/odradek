@@ -255,6 +255,52 @@ fn an_integer_past_the_digit_limit_is_the_uncaught_family() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+fn digit_tail_fixture(digits: usize, tail: &str) -> String {
+    format!(
+        "{{\"synthetic\": true, \"judgment_point\": \"kill-call\", \
+\"request\": {{\"entry\": \"stale-1\", \"signal\": {{\"outcome\": \"satisfied\", \"evidence\": \"x\"}}, \
+\"owner\": {{\"outcome\": \"satisfied\", \"evidence\": \"x\"}}, \
+\"in-flight\": {{\"outcome\": \"satisfied\", \"evidence\": \"x\"}}}}, \
+\"response\": {{\"kind\": \"choice\", \"choice\": \"quarantine\", \
+\"confidence\": 1{}{tail}, \"probabilities\": {{\"quarantine\": 0.9, \
+\"watch\": 0.07, \"spare\": 0.03}}}}}}",
+        "0".repeat(digits - 1)
+    )
+}
+
+#[test]
+fn an_integer_past_the_limit_with_a_broken_tail_raises_before_the_tail() {
+    // ZH-30. Where no digit follows a fraction or exponent
+    // marker, the token the reader matched is the integer
+    // alone, so its conversion raises the uncaught family
+    // ahead of the delimiter failure the marker causes.
+    for tail in [".", "e", "e+", "E-"] {
+        let dir = test_dir("port-digits-tail-over");
+        let fixtures = fixture_dir_with(&dir, "digits.json", &digit_tail_fixture(4301, tail));
+        let (snap, fixtures) = plan_args(&dir, &fixtures);
+        let outcome = run_plan(&dir, &snap, &fixtures);
+        assert_eq!(outcome.code, 1, "tail {tail}");
+        assert_eq!(
+            outcome.stderr_text(),
+            "zombie-hunt: the fixture reader exceeded its integer digit limit\n",
+            "tail {tail}"
+        );
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+    // At the limit the same broken tail is the delimiter
+    // failure in the ordinary way.
+    let dir = test_dir("port-digits-tail-at");
+    let fixtures = fixture_dir_with(&dir, "digits.json", &digit_tail_fixture(4300, "."));
+    let (snap, fixtures) = plan_args(&dir, &fixtures);
+    let outcome = run_plan(&dir, &snap, &fixtures);
+    assert_eq!(outcome.code, 2);
+    assert_eq!(
+        outcome.stderr_text(),
+        format!("error: fixture file is not valid JSON, {fixtures}/digits.json\n")
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 // The snapshot whole number digit limit, ZH-31, through the
 // real binary.
 
@@ -750,6 +796,9 @@ fn the_contract_constants_carry_their_values() {
 }
 
 #[test]
+// The tie witness below is spelled at its full precision
+// on purpose, since the exact expansion is the input.
+#[allow(clippy::excessive_precision)]
 fn the_float_printed_form_matches_the_python_repr_rule() {
     assert_eq!(py_float_repr(0.9), "0.9");
     assert_eq!(py_float_repr(0.6), "0.6");
@@ -760,6 +809,49 @@ fn the_float_printed_form_matches_the_python_repr_rule() {
     assert_eq!(py_float_repr(0.00001), "1e-05");
     assert_eq!(py_float_repr(1e16), "1e+16");
     assert_eq!(py_float_repr(1234567890123456.0), "1234567890123456.0");
+    // An exact tie between two shortest forms resolves to
+    // the even last digit, and a power of two whose correctly
+    // rounded form falls outside its rounding interval
+    // prints the neighbour that round trips (ZH-32).
+    assert_eq!(py_float_repr(0.75000762939453125), "0.7500076293945312");
+    assert_eq!(
+        py_float_repr(5.684341886080802e-14),
+        "5.684341886080802e-14"
+    );
+    assert_eq!(
+        py_float_repr(5.960464477539063e-08),
+        "5.960464477539063e-08"
+    );
+}
+
+#[test]
+fn a_tie_confidence_prints_the_even_form_on_the_verdict_line() {
+    // The differential case of the tie value, at the surface
+    // the contract prints it, the plan verdict line (ZH-32).
+    let dir = test_dir("port-float-tie");
+    let fixtures = fixture_dir_with(
+        &dir,
+        "tie.json",
+        "{\"synthetic\": true, \"judgment_point\": \"kill-call\", \
+\"request\": {\"entry\": \"stale-1\", \
+\"signal\": {\"outcome\": \"satisfied\", \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\"}, \
+\"owner\": {\"outcome\": \"satisfied\", \"evidence\": \"owner done-run is recorded finished\"}, \
+\"in-flight\": {\"outcome\": \"satisfied\", \"evidence\": \"holds cache with no in-flight marker\"}}, \
+\"response\": {\"kind\": \"choice\", \"choice\": \"watch\", \
+\"confidence\": 0.75000762939453125, \"probabilities\": {\"quarantine\": 0.1, \
+\"watch\": 0.75, \"spare\": 0.15}}}",
+    );
+    let (snap, fixtures) = plan_args(&dir, &fixtures);
+    let outcome = run_plan(&dir, &snap, &fixtures);
+    assert_eq!(outcome.code, 0);
+    assert!(
+        outcome
+            .stdout_text()
+            .contains("kill call verdict watch with confidence 0.7500076293945312\n"),
+        "{}",
+        outcome.stdout_text()
+    );
+    let _ = std::fs::remove_dir_all(&dir);
 }
 
 // The reader's own value model, exercised at its public edge.
@@ -1102,6 +1194,33 @@ fn a_fixture_child_directory_refuses_with_the_folded_joined_path() {
 }
 
 #[test]
+fn the_fixture_child_path_joins_with_one_separator() {
+    // ZH-29. The join is the oracle's path join, so the
+    // directory as written takes one separator, a root
+    // directory keeps the anchor it was spelled with, and
+    // no second separator stands where the directory
+    // already ends in one.
+    use zombie_hunt::judgment::joined_fixture_path;
+    assert_eq!(
+        joined_fixture_path(b"/", b"bad.json"),
+        b"/bad.json".to_vec()
+    );
+    assert_eq!(
+        joined_fixture_path(b"//", b"bad.json"),
+        b"//bad.json".to_vec()
+    );
+    assert_eq!(
+        joined_fixture_path(b"fx", b"bad.json"),
+        b"fx/bad.json".to_vec()
+    );
+    assert_eq!(
+        joined_fixture_path(b"fx/", b"bad.json"),
+        b"fx/bad.json".to_vec()
+    );
+    assert_eq!(joined_fixture_path(b"", b"bad.json"), b"bad.json".to_vec());
+}
+
+#[test]
 fn a_utf8_refusal_names_the_path_as_written_under_a_folded_spelling() {
     let dir = test_dir("port-path-utf8");
     write_bytes(&dir, "snap.txt", b"snapshot 100000\nentry a\xff\n");
@@ -1164,22 +1283,46 @@ fn manifest_sections(text: &str) -> Vec<(String, String)> {
     sections
 }
 
-fn dependency_header(header: &str) -> Option<(&'static str, Option<String>)> {
-    const KINDS: [&str; 3] = ["dev-dependencies", "build-dependencies", "dependencies"];
-    let header = header.trim();
-    for kind in KINDS {
-        if header == kind {
-            return Some((kind, None));
-        }
-        if let Some(rest) = header.strip_suffix(&format!(".{kind}")) {
-            let _ = rest;
-            return Some((kind, None));
-        }
-        if let Some(rest) = header.strip_prefix(&format!("{kind}.")) {
-            return Some((kind, Some(rest.trim_matches(['\'', '"']).to_string())));
+/// The segments of one manifest header, split at the dots
+/// that stand outside quotes, a quoted segment standing as
+/// one segment however many dots it carries.
+fn header_segments(header: &str) -> Vec<String> {
+    let mut segments = Vec::new();
+    let mut current = String::new();
+    let mut quote: Option<char> = None;
+    for ch in header.trim().chars() {
+        match quote {
+            Some(close) if ch == close => quote = None,
+            Some(_) => current.push(ch),
+            None if ch == '\'' || ch == '"' => quote = Some(ch),
+            None if ch == '.' => segments.push(std::mem::take(&mut current)),
+            None => current.push(ch),
         }
     }
-    None
+    segments.push(current);
+    segments
+        .into_iter()
+        .map(|segment| segment.trim().to_string())
+        .filter(|segment| !segment.is_empty())
+        .collect()
+}
+
+/// The dependency kind one manifest header names and the
+/// crate a dotted table under it names, wherever in the
+/// header the kind stands, so a per dependency table under
+/// a target prefix reads as the plain forms read.
+fn dependency_header(header: &str) -> Option<(&'static str, Option<String>)> {
+    const KINDS: [&str; 3] = ["dependencies", "dev-dependencies", "build-dependencies"];
+    let segments = header_segments(header);
+    let kind_at = segments
+        .iter()
+        .position(|segment| KINDS.contains(&segment.as_str()))?;
+    let kind = KINDS
+        .iter()
+        .copied()
+        .find(|kind| segments[kind_at] == *kind)?;
+    let dotted = segments.get(kind_at + 1).cloned();
+    Some((kind, dotted))
 }
 
 fn body_crate_names(body: &str, out: &mut BTreeSet<String>) {
@@ -1225,11 +1368,26 @@ fn dependency_sets(text: &str) -> (BTreeSet<String>, BTreeSet<String>, BTreeSet<
 #[test]
 fn the_manifest_places_its_dependencies_as_the_contract_states() {
     let text = std::fs::read_to_string(root().join("Cargo.toml")).expect("read manifest");
-    let (shipped, dev, _build) = dependency_sets(&text);
+    let (shipped, dev, build) = dependency_sets(&text);
     for crate_name in ["anyhow", "clap", "thiserror"] {
         assert!(
             shipped.contains(crate_name),
             "{crate_name} is a shipped dependency"
+        );
+    }
+    assert_eq!(
+        shipped,
+        BTreeSet::from([
+            "anyhow".to_string(),
+            "clap".to_string(),
+            "thiserror".to_string()
+        ]),
+        "the shipped set is exactly the set the contract allows"
+    );
+    for crate_name in ["serde", "serde_json", "sha2"] {
+        assert!(
+            !build.contains(crate_name),
+            "{crate_name} may not be a build dependency"
         );
     }
     for crate_name in ["serde", "serde_json", "sha2"] {
@@ -1253,6 +1411,12 @@ fn the_manifest_places_its_dependencies_as_the_contract_states() {
     assert!(shipped.contains("serde"), "dotted table form must read");
     let (shipped, _, _) = dependency_sets("[target.'cfg(unix)'.dependencies]\nserde = \"1\"\n");
     assert!(shipped.contains("serde"), "target dotted form must read");
+    let (shipped, _, _) =
+        dependency_sets("[target.'cfg(unix)'.dependencies.serde_json]\nversion = \"1\"\n");
+    assert!(
+        shipped.contains("serde_json"),
+        "target dotted per dependency form must read"
+    );
     let (_, _, build) = dependency_sets("[build-dependencies]\nserde_json = \"1\"\n");
     assert!(build.contains("serde_json"), "build dependencies must read");
     let (_, dev, _) = dependency_sets("[dev-dependencies.serde]\nversion = \"1\"\n");
@@ -1288,20 +1452,37 @@ fn no_python_files_stand_in_the_tree() {
 }
 
 /// The crate roots one source text imports, resolving use
-/// trees in grouped, nested, aliased, and glob forms, and
-/// bare module imports.
+/// trees in grouped, nested, aliased, and glob forms, root
+/// level groups and leading double colon paths, and bare
+/// module imports.
 fn imported_roots(text: &str) -> Vec<String> {
+    fn first_segment(text: &str) -> &str {
+        text.split([':', ';', '{', ' '])
+            .next()
+            .expect("a root stands")
+    }
     let mut roots = Vec::new();
     for line in text.lines() {
         let line = line.trim();
-        if let Some(rest) = line.strip_prefix("use ") {
-            let first = rest
-                .split([':', ';', '{', ' '])
-                .next()
-                .expect("a root stands");
-            if !first.is_empty() {
-                roots.push(first.to_string());
+        let Some(rest) = line.strip_prefix("use ") else {
+            continue;
+        };
+        let rest = rest.trim_start();
+        let rest = rest.strip_prefix("::").unwrap_or(rest);
+        if let Some(group) = rest.strip_prefix('{') {
+            let members = group.split('}').next().expect("a group stands");
+            for member in members.split(',') {
+                let member = member.trim().trim_start_matches("::");
+                let first = first_segment(member);
+                if !first.is_empty() {
+                    roots.push(first.to_string());
+                }
             }
+            continue;
+        }
+        let first = first_segment(rest);
+        if !first.is_empty() {
+            roots.push(first.to_string());
         }
     }
     roots
@@ -1321,6 +1502,11 @@ fn the_import_scan_resolves_every_use_form() {
     assert_eq!(imported_roots("use sha2::Digest as _;\n"), ["sha2"]);
     assert_eq!(imported_roots("use clap::*;\n"), ["clap"]);
     assert_eq!(imported_roots("use serde;\n"), ["serde"]);
+    assert_eq!(
+        imported_roots("use {anyhow::Result, std::fmt};\n"),
+        ["anyhow", "std"]
+    );
+    assert_eq!(imported_roots("use ::anyhow::Result;\n"), ["anyhow"]);
 }
 
 #[test]

@@ -388,6 +388,36 @@ fn trust_reaches_at_exactly_point_six() {
     assert!(!trusted(None));
 }
 
+// ZH-17. Trust passes the shape check first, whoever
+// handed the answer back, so an answer outside the
+// recorded shape is never trusted however high its
+// confidence stands.
+
+#[test]
+fn trust_refuses_an_answer_outside_the_recorded_shape() {
+    // The witness answer, a choice kind carrying a
+    // confidence past the unit interval and neither a
+    // choice nor probabilities standing.
+    assert!(!trusted(Some(&v(
+        "{\"kind\": \"choice\", \"confidence\": 1.5}"
+    ))));
+    // A confidence past the unit interval on its own.
+    assert!(!trusted(Some(&v(
+        "{\"kind\": \"choice\", \"choice\": \"watch\", \"confidence\": 1.5, \
+\"probabilities\": {\"quarantine\": 0.1, \"watch\": 0.8, \"spare\": 0.1}}"
+    ))));
+    // The probabilities missing on their own.
+    assert!(!trusted(Some(&v(
+        "{\"kind\": \"choice\", \"choice\": \"watch\", \"confidence\": 0.9}"
+    ))));
+    // And the well formed answer at the same confidence
+    // still stands, so the refusals are the shape's.
+    assert!(trusted(Some(&v(
+        "{\"kind\": \"choice\", \"choice\": \"watch\", \"confidence\": 0.9, \
+\"probabilities\": {\"quarantine\": 0.1, \"watch\": 0.8, \"spare\": 0.1}}"
+    ))));
+}
+
 // ZH-18. The plan rule, asked late, recorded exactly, or untouched.
 
 #[test]
