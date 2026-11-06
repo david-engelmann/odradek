@@ -15,7 +15,11 @@ fn the_corpus_runs_and_its_split_is_pinned() {
     let cases = load_corpus();
     let oracle = cases.iter().filter(|case| case.source == "oracle").count();
     let clap = cases.iter().filter(|case| case.source == "clap").count();
-    assert_eq!((oracle, clap), (34, 25), "corpus source split");
+    // Round 6 removes one clap case, usage-plan-missing-entry,
+    // because its invocation is the estate form now and no
+    // longer a usage refusal. The estate form is pinned in
+    // tests/test_estate.rs instead.
+    assert_eq!((oracle, clap), (34, 24), "corpus source split");
     let mut failures = Vec::new();
     for case in &cases {
         if let Err(detail) = run_corpus_case(case) {

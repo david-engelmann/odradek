@@ -117,3 +117,47 @@ pub fn build_plan(
     );
     Ok(lines.join("\n") + "\n")
 }
+
+/// Write the estate plan over every proven zombie in the
+/// snapshot, in the order the scan lists them.
+///
+/// The estate is the proven set passed through the one block
+/// builder above, never a second plan implementation. The
+/// proven verdicts are taken in the scan's own order, which
+/// among the proven entries is identifier order, the same
+/// comparison the scan sorts its listed entries by. Every
+/// proven entry's observation window is checked ahead of the
+/// first question, where the single plan checks the window of
+/// its one entry ahead of its question, so a window past the
+/// digit limit raises with no question asked about any entry.
+/// The document opens with the estate's own line, prints each
+/// block exactly as the single plan prints it, and closes
+/// with the single plan's closing line standing for the
+/// estate as a whole. A snapshot with no proven zombies
+/// prints the opening line and the closing line alone.
+pub fn build_estate_plan(
+    snapshot: &Snapshot,
+    verdicts: &[Verdict],
+    source: Option<&dyn JudgmentSource>,
+) -> Result<String> {
+    let mut proven: Vec<&Verdict> = verdicts
+        .iter()
+        .filter(|verdict| verdict.classification == PROVEN)
+        .collect();
+    proven.sort_by(|left, right| left.entry.id.cmp(&right.entry.id));
+    for verdict in &proven {
+        let window = verdict
+            .entry
+            .signal_interval
+            .mul_small(OBSERVATION_MULTIPLE);
+        check_computed(&window)?;
+    }
+    let mut document = String::from("estate quarantine plan\n");
+    for verdict in &proven {
+        document.push_str(&build_plan(snapshot, verdicts, &verdict.entry.id, source)?);
+    }
+    document.push_str(
+        "executes nothing, this plan is a document and the tool performs no part of it\n",
+    );
+    Ok(document)
+}

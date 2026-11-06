@@ -3,7 +3,9 @@
 //! Subcommands
 //!   scan     print the scan of one recorded cluster snapshot
 //!   plan     print the quarantine plan for one proven zombie
-//!            in one recorded cluster snapshot
+//!            in one recorded cluster snapshot, or the estate
+//!            plan over every proven zombie in the snapshot
+//!            when no entry is named
 //!   observe  print the observation report for one plan over
 //!            a later recorded snapshot
 //!
@@ -48,7 +50,7 @@ use zombie_hunt::errors::Error;
 use zombie_hunt::judgment::{FixturePlayer, JudgmentSource};
 use zombie_hunt::observe::build_observation;
 use zombie_hunt::paths::py_path_folded;
-use zombie_hunt::plan::build_plan;
+use zombie_hunt::plan::{build_estate_plan, build_plan};
 use zombie_hunt::pytext::{PyStr, is_decimal};
 use zombie_hunt::scan::{classify, format_scan};
 use zombie_hunt::snapshot::parse_snapshot;
@@ -83,7 +85,7 @@ struct ScanArgs {
 #[derive(Args)]
 struct PlanArgs {
     snapshot: OsString,
-    entry_id: OsString,
+    entry_id: Option<OsString>,
     #[arg(long = "fixtures")]
     fixtures: Option<OsString>,
 }
@@ -603,7 +605,14 @@ fn scan(tokens: &[OsString]) -> Scan {
     };
     let cmd = specs[index].cmd;
     let assigned = if clean {
-        distribute(&segments, cmd.slots())
+        match cmd {
+            // The plan takes two shares in its single form
+            // and one share in its estate form, and the two
+            // share reading is tried first so a complete
+            // single invocation is never read as an estate.
+            Cmd::Plan => distribute(&segments, 2).or_else(|| distribute(&segments, 1)),
+            _ => distribute(&segments, cmd.slots()),
+        }
     } else {
         None
     };
@@ -872,11 +881,22 @@ fn run_assigned(assigned: &Assigned) -> ExitCode {
                     Err(error) => return answer_library_error(error),
                 },
             };
+            let source_ref = player.as_ref().map(|held| held as &dyn JudgmentSource);
+            if assigned.slots.len() == 1 {
+                // The estate form names no entry, so no entry
+                // slot is read and no entry level refusal
+                // stands. The snapshot read, the parse, the
+                // classification, and the fixtures load above
+                // are the whole refusal order ahead of it.
+                return match build_estate_plan(&snapshot, &verdicts, source_ref) {
+                    Ok(document) => print_document(&document),
+                    Err(error) => answer_library_error(error),
+                };
+            }
             let entry_id = match entry_slot(&assigned.slots[1]) {
                 Ok(id) => id,
                 Err(code) => return code,
             };
-            let source_ref = player.as_ref().map(|held| held as &dyn JudgmentSource);
             match build_plan(&snapshot, &verdicts, &entry_id, source_ref) {
                 Ok(document) => print_document(&document),
                 Err(error) => answer_library_error(error),
