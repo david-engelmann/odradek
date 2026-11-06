@@ -24,6 +24,6 @@ pub use judgment::{
     kill_call_request, trusted, validate_fixture,
 };
 pub use observe::build_observation;
-pub use plan::build_plan;
+pub use plan::{build_estate_plan, build_plan};
 pub use scan::{classify, classify_entry, format_scan};
 pub use snapshot::{Entry, Snapshot, parse_snapshot};
