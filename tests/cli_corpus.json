@@ -703,7 +703,7 @@
    ],
    "expect": {
     "code": 0,
-    "stdout": "Usage: zombie-hunt plan [OPTIONS] <SNAPSHOT> <ENTRY_ID>\n\nArguments:\n  <SNAPSHOT>  \n  <ENTRY_ID>  \n\nOptions:\n      --fixtures <FIXTURES>  \n  -h, --help                 Print help\n",
+    "stdout": "Usage: zombie-hunt plan [OPTIONS] <SNAPSHOT> [ENTRY_ID]\n\nArguments:\n  <SNAPSHOT>  \n  [ENTRY_ID]  \n\nOptions:\n      --fixtures <FIXTURES>  \n  -h, --help                 Print help\n",
     "stderr": ""
    }
   },
@@ -836,22 +836,6 @@
    }
   },
   {
-   "name": "usage-plan-missing-entry",
-   "source": "clap",
-   "setup": {
-    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
-   },
-   "argv": [
-    "plan",
-    "snap.txt"
-   ],
-   "expect": {
-    "code": 2,
-    "stdout": "",
-    "stderr": "error: the following required arguments were not provided:\n  <ENTRY_ID>\n\nUsage: zombie-hunt plan <SNAPSHOT> <ENTRY_ID>\n\nFor more information, try '--help'.\n"
-   }
-  },
-  {
    "name": "usage-plan-missing-flag-value",
    "source": "clap",
    "setup": {
@@ -910,7 +894,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: unexpected argument '--' found\n\nUsage: zombie-hunt plan [OPTIONS] <SNAPSHOT> <ENTRY_ID>\n\nFor more information, try '--help'.\n"
+    "stderr": "error: unexpected argument '--' found\n\nUsage: zombie-hunt plan [OPTIONS] <SNAPSHOT> [ENTRY_ID]\n\nFor more information, try '--help'.\n"
    }
   },
   {
@@ -967,7 +951,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: unexpected argument '--bogus' found\n\n  tip: to pass '--bogus' as a value, use '-- --bogus'\n\nUsage: zombie-hunt plan [OPTIONS] <SNAPSHOT> <ENTRY_ID>\n\nFor more information, try '--help'.\n"
+    "stderr": "error: unexpected argument '--bogus' found\n\n  tip: to pass '--bogus' as a value, use '-- --bogus'\n\nUsage: zombie-hunt plan [OPTIONS] <SNAPSHOT> [ENTRY_ID]\n\nFor more information, try '--help'.\n"
    }
   },
   {
