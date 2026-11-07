@@ -9,8 +9,8 @@ mod common;
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-use zombie_hunt::judgment::load_fixture_file;
-use zombie_hunt::pytext::{PyStr, py_float_repr};
+use odradek::judgment::load_fixture_file;
+use odradek::pytext::{PyStr, py_float_repr};
 
 use common::{DeadStream, run_cli, run_cli_dead, test_dir, write, write_bytes};
 
@@ -50,7 +50,7 @@ fn a_document_under_the_buffer_divide_on_a_dead_stdout_exits_120() {
     assert_eq!(outcome.code, 120);
     assert_eq!(
         outcome.stderr_text(),
-        "zombie-hunt could not print its document\n"
+        "odradek could not print its document\n"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -64,7 +64,7 @@ fn a_document_at_the_buffer_divide_on_a_dead_stdout_is_the_uncaught_family() {
     assert_eq!(outcome.code, 1);
     assert_eq!(
         outcome.stderr_text(),
-        "zombie-hunt: the document print failed\n"
+        "odradek: the document print failed\n"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -181,7 +181,7 @@ fn a_fixture_past_the_nesting_ceiling_is_the_uncaught_family() {
     assert_eq!(outcome.code, 1);
     assert_eq!(
         outcome.stderr_text(),
-        "zombie-hunt: the fixture reader exceeded its nesting ceiling\n"
+        "odradek: the fixture reader exceeded its nesting ceiling\n"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -206,7 +206,7 @@ fn the_mixed_carrier_holds_the_same_ceiling() {
     assert_eq!(outcome.code, 1);
     assert_eq!(
         outcome.stderr_text(),
-        "zombie-hunt: the fixture reader exceeded its nesting ceiling\n"
+        "odradek: the fixture reader exceeded its nesting ceiling\n"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -250,7 +250,7 @@ fn an_integer_past_the_digit_limit_is_the_uncaught_family() {
     assert_eq!(outcome.code, 1);
     assert_eq!(
         outcome.stderr_text(),
-        "zombie-hunt: the fixture reader exceeded its integer digit limit\n"
+        "odradek: the fixture reader exceeded its integer digit limit\n"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -282,7 +282,7 @@ fn an_integer_past_the_limit_with_a_broken_tail_raises_before_the_tail() {
         assert_eq!(outcome.code, 1, "tail {tail}");
         assert_eq!(
             outcome.stderr_text(),
-            "zombie-hunt: the fixture reader exceeded its integer digit limit\n",
+            "odradek: the fixture reader exceeded its integer digit limit\n",
             "tail {tail}"
         );
         let _ = std::fs::remove_dir_all(&dir);
@@ -330,7 +330,7 @@ fn a_snapshot_time_past_the_digit_limit_is_the_uncaught_family() {
     assert_eq!(outcome.code, 1);
     assert_eq!(
         outcome.stderr_text(),
-        "zombie-hunt: a snapshot whole number exceeded its digit limit\n"
+        "odradek: a snapshot whole number exceeded its digit limit\n"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -363,7 +363,7 @@ fn a_huge_snapshot_time_prints_in_full_and_ages_exactly() {
 // classification and at the window print in the plan and the
 // observation report.
 
-const COMPUTED_LINE: &str = "zombie-hunt: a computed count exceeded the integer digit limit\n";
+const COMPUTED_LINE: &str = "odradek: a computed count exceeded the integer digit limit\n";
 
 fn big_entry(id: &str, interval: &str, last_signal: &str, owner: &str) -> String {
     format!(
@@ -643,7 +643,7 @@ fn a_later_threshold_is_not_read_before_the_window_reaches() {
 // stands inside 9988 containers, while a failure to find a
 // value raises it only inside the full 9991.
 
-const RECURSION_LINE: &str = "zombie-hunt: the fixture reader exceeded its nesting ceiling\n";
+const RECURSION_LINE: &str = "odradek: the fixture reader exceeded its nesting ceiling\n";
 
 fn nested_fixture(carrier: &str, depth: usize, core: &str) -> String {
     let mut opens = String::new();
@@ -782,17 +782,17 @@ fn the_input_ending_where_a_value_stands_holds_to_the_ceiling() {
 
 #[test]
 fn the_contract_constants_carry_their_values() {
-    assert_eq!(zombie_hunt::judgment::CONFIDENCE_THRESHOLD, 0.6);
-    assert_eq!(zombie_hunt::pyjson::MAX_CONTAINER_DEPTH, 9991);
-    assert_eq!(zombie_hunt::pyjson::UNCAUGHT_GRAMMAR_DEPTH, 9988);
-    assert_eq!(zombie_hunt::pyjson::MAX_INT_DIGITS, 4300);
+    assert_eq!(odradek::judgment::CONFIDENCE_THRESHOLD, 0.6);
+    assert_eq!(odradek::pyjson::MAX_CONTAINER_DEPTH, 9991);
+    assert_eq!(odradek::pyjson::UNCAUGHT_GRAMMAR_DEPTH, 9988);
+    assert_eq!(odradek::pyjson::MAX_INT_DIGITS, 4300);
     assert_eq!(
-        zombie_hunt::scan::COMPUTED_DIGIT_LINE,
-        "zombie-hunt: a computed count exceeded the integer digit limit"
+        odradek::scan::COMPUTED_DIGIT_LINE,
+        "odradek: a computed count exceeded the integer digit limit"
     );
-    assert_eq!(zombie_hunt::snapshot::MAX_WHOLE_DIGITS, 4300);
-    assert_eq!(zombie_hunt::scan::PROOF_MULTIPLE, 3);
-    assert_eq!(zombie_hunt::plan::OBSERVATION_MULTIPLE, 10);
+    assert_eq!(odradek::snapshot::MAX_WHOLE_DIGITS, 4300);
+    assert_eq!(odradek::scan::PROOF_MULTIPLE, 3);
+    assert_eq!(odradek::plan::OBSERVATION_MULTIPLE, 10);
 }
 
 #[test]
@@ -897,7 +897,7 @@ fn a_list_in_the_entry_slot_of_observe_surfaces_at_the_lookup() {
     assert_eq!(outcome.code, 1);
     assert_eq!(
         outcome.stderr_text(),
-        "zombie-hunt: an argument arrived as a list where a single entry identifier was expected\n"
+        "odradek: an argument arrived as a list where a single entry identifier was expected\n"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -911,7 +911,7 @@ fn a_list_in_the_later_slot_surfaces_at_that_read() {
     assert_eq!(outcome.code, 1);
     assert_eq!(
         outcome.stderr_text(),
-        "zombie-hunt: an argument arrived as a list where a single path was expected\n"
+        "odradek: an argument arrived as a list where a single path was expected\n"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -944,7 +944,7 @@ fn a_plan_entry_list_surfaces_after_the_fixtures_load() {
     assert_eq!(outcome.code, 1);
     assert_eq!(
         outcome.stderr_text(),
-        "zombie-hunt: an argument arrived as a list where a single entry identifier was expected\n"
+        "odradek: an argument arrived as a list where a single entry identifier was expected\n"
     );
     // And a fixtures refusal precedes the same list.
     let outcome = run_cli(
@@ -1200,7 +1200,7 @@ fn the_fixture_child_path_joins_with_one_separator() {
     // directory keeps the anchor it was spelled with, and
     // no second separator stands where the directory
     // already ends in one.
-    use zombie_hunt::judgment::joined_fixture_path;
+    use odradek::judgment::joined_fixture_path;
     assert_eq!(
         joined_fixture_path(b"/", b"bad.json"),
         b"/bad.json".to_vec()

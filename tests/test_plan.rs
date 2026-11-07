@@ -2,15 +2,15 @@
 
 mod common;
 
-use zombie_hunt::errors::Error;
-use zombie_hunt::plan::build_plan;
-use zombie_hunt::pytext::PyStr;
-use zombie_hunt::scan::classify;
-use zombie_hunt::snapshot::parse_snapshot;
+use odradek::errors::Error;
+use odradek::plan::build_plan;
+use odradek::pytext::PyStr;
+use odradek::scan::classify;
+use odradek::snapshot::parse_snapshot;
 
 use common::{EXPECTED_PLAN, SNAPSHOT_TEXT};
 
-fn plan(entry_id: &str, text: &str) -> zombie_hunt::errors::Result<String> {
+fn plan(entry_id: &str, text: &str) -> odradek::errors::Result<String> {
     let snap = parse_snapshot(&PyStr::from_str(text), &PyStr::from_str("snap.txt"))
         .expect("snapshot parses");
     build_plan(

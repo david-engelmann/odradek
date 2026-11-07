@@ -1,12 +1,12 @@
 //! ZH-1. The recorded snapshot format and its refusals.
 
-use zombie_hunt::errors::Error;
-use zombie_hunt::pytext::PyStr;
-use zombie_hunt::snapshot::parse_snapshot;
+use odradek::errors::Error;
+use odradek::pytext::PyStr;
+use odradek::snapshot::parse_snapshot;
 
 const VALID: &str = "snapshot 100000\nentry proc-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds cache,reports\nowner run-1\nentry run-1\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\n";
 
-fn parse(text: &str) -> zombie_hunt::errors::Result<zombie_hunt::Snapshot> {
+fn parse(text: &str) -> odradek::errors::Result<odradek::Snapshot> {
     parse_snapshot(&PyStr::from_str(text), &PyStr::from_str("snap.txt"))
 }
 

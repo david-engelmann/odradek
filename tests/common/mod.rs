@@ -1,4 +1,4 @@
-//! Shared helpers for the zombie-hunt test suites.
+//! Shared helpers for the odradek test suites.
 //!
 //! The library suites call the library directly. The command
 //! suites run the compiled binary in a fresh temporary
@@ -18,7 +18,7 @@ static COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 pub fn test_dir(name: &str) -> PathBuf {
     let n = COUNTER.fetch_add(1, Ordering::SeqCst);
-    let dir = std::env::temp_dir().join(format!("zombie-hunt-{name}-{}-{n}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!("odradek-{name}-{}-{n}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("create test dir");
     dir
@@ -63,7 +63,7 @@ impl Outcome {
 }
 
 fn binary() -> &'static str {
-    env!("CARGO_BIN_EXE_zombie-hunt")
+    env!("CARGO_BIN_EXE_odradek")
 }
 
 pub fn run_cli(args: &[&str], cwd: &Path) -> Outcome {
@@ -71,7 +71,7 @@ pub fn run_cli(args: &[&str], cwd: &Path) -> Outcome {
         .args(args)
         .current_dir(cwd)
         .output()
-        .expect("run zombie-hunt");
+        .expect("run odradek");
     Outcome {
         code: out.status.code().unwrap_or(-1),
         stdout: out.stdout,
@@ -86,7 +86,7 @@ pub fn run_cli_bytes(args: &[&[u8]], cwd: &Path) -> Outcome {
         .args(args.iter().map(|a| std::ffi::OsStr::from_bytes(a)))
         .current_dir(cwd)
         .output()
-        .expect("run zombie-hunt");
+        .expect("run odradek");
     Outcome {
         code: out.status.code().unwrap_or(-1),
         stdout: out.stdout,
@@ -119,7 +119,7 @@ pub fn run_cli_dead(args: &[&str], cwd: &Path, dead: DeadStream) -> Outcome {
             command.stdout(Stdio::piped());
         }
     }
-    let mut child = command.spawn().expect("spawn zombie-hunt");
+    let mut child = command.spawn().expect("spawn odradek");
     let mut stdout = Vec::new();
     let mut stderr = Vec::new();
     if dead == DeadStream::Stderr {
@@ -129,7 +129,7 @@ pub fn run_cli_dead(args: &[&str], cwd: &Path, dead: DeadStream) -> Outcome {
     } else if let Some(mut taken) = child.stderr.take() {
         let _ = taken.read_to_end(&mut stderr);
     }
-    let status = child.wait().expect("wait for zombie-hunt");
+    let status = child.wait().expect("wait for odradek");
     Outcome {
         code: status.code().unwrap_or(-1),
         stdout,

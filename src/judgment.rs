@@ -1,6 +1,6 @@
 //! Recorded kill call judgments, played back from fixtures.
 //!
-//! The roadmap gives zombie-hunt one decision point, the kill
+//! The roadmap gives odradek one decision point, the kill
 //! call. When the proof pack for a proven zombie is complete,
 //! a judgment answers one question over the recorded evidence,
 //! does this workload serve nobody, with a choice over the

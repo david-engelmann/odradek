@@ -1,8 +1,8 @@
-# Roadmap - zombie-hunt
+# Roadmap - odradek
 
-Zombie-hunt stalks a cluster for workloads that serve nobody, proves each kill before it fires, and starts from a reversible quarantine. The setup slice is landed and the contract stub stands at ZH-S1 to ZH-S5. Round 1 builds the scan over one recorded cluster snapshot, the suspect list with evidence, and a reversible quarantine plan for one proven zombie.
+Odradek stalks a cluster for workloads that serve nobody, proves each kill before it fires, and starts from a reversible quarantine. The setup slice is landed and the contract stub stands at ZH-S1 to ZH-S5. Round 1 builds the scan over one recorded cluster snapshot, the suspect list with evidence, and a reversible quarantine plan for one proven zombie.
 
-## Decision models in zombie-hunt
+## Decision models in odradek
 
 Judgment enters at the kill call, and only there.
 

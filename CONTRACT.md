@@ -1,6 +1,6 @@
-# Contract - zombie-hunt
+# Contract - odradek
 
-This contract is the executable spec for zombie-hunt. Every obligation below is stated so it can fail. The full contract is the first build act of this repo and it extends the stub obligations written here.
+This contract is the executable spec for odradek. Every obligation below is stated so it can fail. The full contract is the first build act of this repo and it extends the stub obligations written here.
 
 ## Stub obligations
 

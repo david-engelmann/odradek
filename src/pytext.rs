@@ -1,6 +1,6 @@
 //! Python text behaviour the crate's documents depend on.
 //!
-//! Zombie-hunt's formats are defined in terms of Python string
+//! Odradek's formats are defined in terms of Python string
 //! operations, so the crate carries a string type that holds a
 //! Python string exactly, as the sequence of its code points,
 //! lone surrogates included. The fixture reader can produce a

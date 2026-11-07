@@ -4,12 +4,12 @@ mod common;
 
 use std::path::PathBuf;
 
-use zombie_hunt::judgment::{FixturePlayer, JudgmentSource, kill_call_request};
-use zombie_hunt::plan::build_plan;
-use zombie_hunt::pyjson::dumps_canonical;
-use zombie_hunt::pytext::PyStr;
-use zombie_hunt::scan::{CONTRADICTED, PROVEN, SUSPECT, classify, format_scan};
-use zombie_hunt::snapshot::parse_snapshot;
+use odradek::judgment::{FixturePlayer, JudgmentSource, kill_call_request};
+use odradek::plan::build_plan;
+use odradek::pyjson::dumps_canonical;
+use odradek::pytext::PyStr;
+use odradek::scan::{CONTRADICTED, PROVEN, SUSPECT, classify, format_scan};
+use odradek::snapshot::parse_snapshot;
 
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))

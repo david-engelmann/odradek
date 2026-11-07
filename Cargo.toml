@@ -1,5 +1,5 @@
 [package]
-name = "zombie-hunt"
+name = "odradek"
 version = "0.1.0"
 edition = "2024"
 description = "Proves zombie workloads from recorded cluster snapshots and writes reversible quarantine plans"

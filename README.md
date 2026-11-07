@@ -1,10 +1,10 @@
-# zombie-hunt
+# odradek
 
-Zombie-hunt reads recorded cluster snapshots and prints a scan, a quarantine plan, or an observation report. It executes nothing.
+Odradek reads recorded cluster snapshots and prints a scan, a quarantine plan, or an observation report. It executes nothing.
 
 ## What this is
 
-Zombie-hunt works from recorded or synthetic cluster state only and never connects to a live cluster. The scan classifies every entry by three mechanical proof rules over its recorded signal, owner, and in-flight evidence, and lists every suspect and proven zombie with the evidence for its classification. The plan prints a reversible quarantine plan for one proven zombie, or an estate plan covering every proven zombie in the snapshot when no entry is named. The observation report reads the outcome of a plan watch from a later snapshot. Every plan is a document, and the first action any plan describes is a reversible quarantine, so nothing irreversible is ever the first step.
+Odradek works from recorded or synthetic cluster state only and never connects to a live cluster. The scan classifies every entry by three mechanical proof rules over its recorded signal, owner, and in-flight evidence, and lists every suspect and proven zombie with the evidence for its classification. The plan prints a reversible quarantine plan for one proven zombie, or an estate plan covering every proven zombie in the snapshot when no entry is named. The observation report reads the outcome of a plan watch from a later snapshot. Every plan is a document, and the first action any plan describes is a reversible quarantine, so nothing irreversible is ever the first step.
 
 ## Status
 
