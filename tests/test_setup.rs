@@ -150,15 +150,21 @@ fn the_setup_digit_class_is_the_unicode_decimal_class() {
 }
 
 #[test]
-fn the_ci_backstop_step_runs_the_cargo_gate() {
+fn the_ci_gate_steps_run_the_full_gate() {
     let text = read(".github/workflows/ci.yml");
     assert!(
-        text.contains("Run CI backstop"),
-        "the CI backstop step is missing"
+        text.contains("merge_group"),
+        "the CI gate must run for the merge queue"
     );
     assert!(
+        text.contains("cargo fmt --check"),
+        "the CI gate must check formatting"
+    );
+    assert!(text.contains("cargo clippy"), "the CI gate must run clippy");
+    assert!(text.contains("Run CI gate"), "the CI gate step is missing");
+    assert!(
         text.contains("cargo test"),
-        "the CI backstop must run the cargo gate"
+        "the CI gate must run the cargo gate"
     );
     assert!(
         text.contains("dtolnay/rust-toolchain"),
