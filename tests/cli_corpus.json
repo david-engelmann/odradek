@@ -662,7 +662,7 @@
    ],
    "expect": {
     "code": 0,
-    "stdout": "Reads recorded cluster snapshots and prints the scan, a quarantine plan, or an observation report. Executes nothing.\n\nUsage: odradek [COMMAND]\n\nCommands:\n  scan     \n  plan     \n  observe  \n\nOptions:\n  -h, --help  Print help\n",
+    "stdout": "Hunter agents stalk a compute cluster for zombie workloads, idle services, forgotten namespaces, and load balancers serving nobody. Nothing is deleted on suspicion; every target is proven dead first.\n\nUsage: odradek [COMMAND]\n\nCommands:\n  scan     \n  plan     \n  observe  \n\nOptions:\n  -h, --help  Print help\n",
     "stderr": ""
    }
   },
@@ -675,7 +675,7 @@
    ],
    "expect": {
     "code": 0,
-    "stdout": "Reads recorded cluster snapshots and prints the scan, a quarantine plan, or an observation report. Executes nothing.\n\nUsage: odradek [COMMAND]\n\nCommands:\n  scan     \n  plan     \n  observe  \n\nOptions:\n  -h, --help  Print help\n",
+    "stdout": "Hunter agents stalk a compute cluster for zombie workloads, idle services, forgotten namespaces, and load balancers serving nobody. Nothing is deleted on suspicion; every target is proven dead first.\n\nUsage: odradek [COMMAND]\n\nCommands:\n  scan     \n  plan     \n  observe  \n\nOptions:\n  -h, --help  Print help\n",
     "stderr": ""
    }
   },

@@ -2,7 +2,7 @@
 name = "odradek"
 version = "0.1.0"
 edition = "2024"
-description = "Proves zombie workloads from recorded cluster snapshots and writes reversible quarantine plans"
+description = "Hunter agents stalk a compute cluster for zombie workloads, idle services, forgotten namespaces, and load balancers serving nobody. Nothing is deleted on suspicion; every target is proven dead first."
 license = "MIT"
 
 [dependencies]
