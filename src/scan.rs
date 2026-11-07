@@ -19,8 +19,7 @@ pub const PROOF_MULTIPLE: u32 = 3;
 /// The line the port prints when a computed count passes the
 /// digit limit in print, its own one line standing where the
 /// oracle printed a traceback.
-pub const COMPUTED_DIGIT_LINE: &str =
-    "zombie-hunt: a computed count exceeded the integer digit limit";
+pub const COMPUTED_DIGIT_LINE: &str = "odradek: a computed count exceeded the integer digit limit";
 
 /// The digit limit binds the print of a computed count as it
 /// binds a conversion (ZH-31). A computed count whose decimal

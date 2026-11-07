@@ -5,15 +5,15 @@ mod common;
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
 
-use zombie_hunt::errors::Error;
-use zombie_hunt::judgment::{
+use odradek::errors::Error;
+use odradek::judgment::{
     FixturePlayer, JudgmentSource, check_answer, kill_call_request, trusted, validate_fixture,
 };
-use zombie_hunt::plan::build_plan;
-use zombie_hunt::pyjson::{Value, dumps_canonical, loads};
-use zombie_hunt::pytext::PyStr;
-use zombie_hunt::scan::classify;
-use zombie_hunt::snapshot::parse_snapshot;
+use odradek::plan::build_plan;
+use odradek::pyjson::{Value, dumps_canonical, loads};
+use odradek::pytext::PyStr;
+use odradek::scan::classify;
+use odradek::snapshot::parse_snapshot;
 
 use common::{
     ADVANCED_PLAN, EXPECTED_PLAN, SNAPSHOT_B, SNAPSHOT_TEXT, STALE_1_REQUEST_CANONICAL, WATCH_PLAN,
@@ -79,7 +79,7 @@ fn plan_with(
     entry_id: &str,
     source: &dyn JudgmentSource,
     text: &str,
-) -> zombie_hunt::errors::Result<String> {
+) -> odradek::errors::Result<String> {
     let snap = parse_snapshot(&PyStr::from_str(text), &PyStr::from_str("snap.txt"))
         .expect("snapshot parses");
     build_plan(

@@ -1,8 +1,8 @@
 //! ZH-2, ZH-3, and ZH-4. The three proof rules at their edges.
 
-use zombie_hunt::pytext::PyStr;
-use zombie_hunt::scan::{CONTRADICTED, SATISFIED, UNKNOWN, Verdict, classify_entry};
-use zombie_hunt::snapshot::parse_snapshot;
+use odradek::pytext::PyStr;
+use odradek::scan::{CONTRADICTED, SATISFIED, UNKNOWN, Verdict, classify_entry};
+use odradek::snapshot::parse_snapshot;
 
 fn entry_block(entry_id: &str, overrides: &[(&str, &str)]) -> String {
     let mut fields: Vec<(&str, &str)> = vec![

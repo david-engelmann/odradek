@@ -1,7 +1,7 @@
-//! zombie-hunt. Proofs over recorded cluster snapshots,
+//! odradek. Proofs over recorded cluster snapshots,
 //! plans only.
 //!
-//! Zombie-hunt proves each kill before it fires and starts
+//! Odradek proves each kill before it fires and starts
 //! from a reversible quarantine. It works only from recorded
 //! or synthetic state and never connects to a live cluster.
 

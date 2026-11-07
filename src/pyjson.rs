@@ -147,9 +147,9 @@ fn value_failure(depth: usize) -> LoadsError {
 
 /// The line the port prints for a reader ceiling, its own one
 /// line standing where the oracle printed a traceback.
-pub const RECURSION_LINE: &str = "zombie-hunt: the fixture reader exceeded its nesting ceiling";
+pub const RECURSION_LINE: &str = "odradek: the fixture reader exceeded its nesting ceiling";
 /// The line the port prints for the digit limit.
-pub const DIGIT_LINE: &str = "zombie-hunt: the fixture reader exceeded its integer digit limit";
+pub const DIGIT_LINE: &str = "odradek: the fixture reader exceeded its integer digit limit";
 
 struct Parser {
     points: Vec<u32>,

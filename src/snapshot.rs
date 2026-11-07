@@ -34,7 +34,7 @@ pub const MAX_WHOLE_DIGITS: usize = 4300;
 /// The line the port prints when a whole number conversion
 /// passes the digit limit, its own one line standing where
 /// the oracle printed a traceback.
-pub const WHOLE_DIGIT_LINE: &str = "zombie-hunt: a snapshot whole number exceeded its digit limit";
+pub const WHOLE_DIGIT_LINE: &str = "odradek: a snapshot whole number exceeded its digit limit";
 
 /// One recorded entry of a snapshot.
 #[derive(Clone, Debug, PartialEq)]

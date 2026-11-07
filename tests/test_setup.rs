@@ -8,8 +8,8 @@
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
+use odradek::pytext::{decimal_value, is_decimal};
 use sha2::{Digest, Sha256};
-use zombie_hunt::pytext::{decimal_value, is_decimal};
 
 const CANONICAL_PREFIX_SHA256: &str =
     "63d2f04005dc8eb111d3efca1be55c0911f9ad46bc7cf3c74d9f9908f4a86f11";

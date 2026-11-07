@@ -2,11 +2,11 @@
 
 mod common;
 
-use zombie_hunt::errors::Error;
-use zombie_hunt::observe::build_observation;
-use zombie_hunt::pytext::PyStr;
-use zombie_hunt::scan::{classify, classify_entry};
-use zombie_hunt::snapshot::parse_snapshot;
+use odradek::errors::Error;
+use odradek::observe::build_observation;
+use odradek::pytext::PyStr;
+use odradek::scan::{classify, classify_entry};
+use odradek::snapshot::parse_snapshot;
 
 use common::EARLIER_TEXT;
 
@@ -17,7 +17,7 @@ fn observe(
     earlier_text: &str,
     later_text: &str,
     entry_id: &str,
-) -> zombie_hunt::errors::Result<String> {
+) -> odradek::errors::Result<String> {
     let earlier = parse_snapshot(
         &PyStr::from_str(earlier_text),
         &PyStr::from_str("earlier.txt"),

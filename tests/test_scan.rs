@@ -2,9 +2,9 @@
 
 mod common;
 
-use zombie_hunt::pytext::PyStr;
-use zombie_hunt::scan::{classify, format_scan};
-use zombie_hunt::snapshot::parse_snapshot;
+use odradek::pytext::PyStr;
+use odradek::scan::{classify, format_scan};
+use odradek::snapshot::parse_snapshot;
 
 use common::{EXPECTED_SCAN, SNAPSHOT_TEXT};
 

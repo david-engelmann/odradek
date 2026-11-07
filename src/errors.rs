@@ -1,4 +1,4 @@
-//! Error types for zombie-hunt.
+//! Error types for odradek.
 //!
 //! The first four variants are the refusal classes the Python
 //! tool raised, one per surface that can refuse, and each

@@ -662,7 +662,7 @@
    ],
    "expect": {
     "code": 0,
-    "stdout": "Reads recorded cluster snapshots and prints the scan, a quarantine plan, or an observation report. Executes nothing.\n\nUsage: zombie-hunt [COMMAND]\n\nCommands:\n  scan     \n  plan     \n  observe  \n\nOptions:\n  -h, --help  Print help\n",
+    "stdout": "Reads recorded cluster snapshots and prints the scan, a quarantine plan, or an observation report. Executes nothing.\n\nUsage: odradek [COMMAND]\n\nCommands:\n  scan     \n  plan     \n  observe  \n\nOptions:\n  -h, --help  Print help\n",
     "stderr": ""
    }
   },
@@ -675,7 +675,7 @@
    ],
    "expect": {
     "code": 0,
-    "stdout": "Reads recorded cluster snapshots and prints the scan, a quarantine plan, or an observation report. Executes nothing.\n\nUsage: zombie-hunt [COMMAND]\n\nCommands:\n  scan     \n  plan     \n  observe  \n\nOptions:\n  -h, --help  Print help\n",
+    "stdout": "Reads recorded cluster snapshots and prints the scan, a quarantine plan, or an observation report. Executes nothing.\n\nUsage: odradek [COMMAND]\n\nCommands:\n  scan     \n  plan     \n  observe  \n\nOptions:\n  -h, --help  Print help\n",
     "stderr": ""
    }
   },
@@ -689,7 +689,7 @@
    ],
    "expect": {
     "code": 0,
-    "stdout": "Usage: zombie-hunt scan <SNAPSHOT>\n\nArguments:\n  <SNAPSHOT>  \n\nOptions:\n  -h, --help  Print help\n",
+    "stdout": "Usage: odradek scan <SNAPSHOT>\n\nArguments:\n  <SNAPSHOT>  \n\nOptions:\n  -h, --help  Print help\n",
     "stderr": ""
    }
   },
@@ -703,7 +703,7 @@
    ],
    "expect": {
     "code": 0,
-    "stdout": "Usage: zombie-hunt plan [OPTIONS] <SNAPSHOT> [ENTRY_ID]\n\nArguments:\n  <SNAPSHOT>  \n  [ENTRY_ID]  \n\nOptions:\n      --fixtures <FIXTURES>  \n  -h, --help                 Print help\n",
+    "stdout": "Usage: odradek plan [OPTIONS] <SNAPSHOT> [ENTRY_ID]\n\nArguments:\n  <SNAPSHOT>  \n  [ENTRY_ID]  \n\nOptions:\n      --fixtures <FIXTURES>  \n  -h, --help                 Print help\n",
     "stderr": ""
    }
   },
@@ -717,7 +717,7 @@
    ],
    "expect": {
     "code": 0,
-    "stdout": "Usage: zombie-hunt observe <EARLIER> <LATER> <ENTRY_ID>\n\nArguments:\n  <EARLIER>   \n  <LATER>     \n  <ENTRY_ID>  \n\nOptions:\n  -h, --help  Print help\n",
+    "stdout": "Usage: odradek observe <EARLIER> <LATER> <ENTRY_ID>\n\nArguments:\n  <EARLIER>   \n  <LATER>     \n  <ENTRY_ID>  \n\nOptions:\n  -h, --help  Print help\n",
     "stderr": ""
    }
   },
@@ -734,7 +734,7 @@
    ],
    "expect": {
     "code": 0,
-    "stdout": "Usage: zombie-hunt scan <SNAPSHOT>\n\nArguments:\n  <SNAPSHOT>  \n\nOptions:\n  -h, --help  Print help\n",
+    "stdout": "Usage: odradek scan <SNAPSHOT>\n\nArguments:\n  <SNAPSHOT>  \n\nOptions:\n  -h, --help  Print help\n",
     "stderr": ""
    }
   },
@@ -751,7 +751,7 @@
    ],
    "expect": {
     "code": 0,
-    "stdout": "Usage: zombie-hunt scan <SNAPSHOT>\n\nArguments:\n  <SNAPSHOT>  \n\nOptions:\n  -h, --help  Print help\n",
+    "stdout": "Usage: odradek scan <SNAPSHOT>\n\nArguments:\n  <SNAPSHOT>  \n\nOptions:\n  -h, --help  Print help\n",
     "stderr": ""
    }
   },
@@ -765,7 +765,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: unexpected value 'x' for '--help' found; no more were expected\n\nUsage: zombie-hunt --help\n\nFor more information, try '--help'.\n"
+    "stderr": "error: unexpected value 'x' for '--help' found; no more were expected\n\nUsage: odradek --help\n\nFor more information, try '--help'.\n"
    }
   },
   {
@@ -778,7 +778,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: unexpected value 'x' for '--help' found; no more were expected\n\nUsage: zombie-hunt --help\n\nFor more information, try '--help'.\n"
+    "stderr": "error: unexpected value 'x' for '--help' found; no more were expected\n\nUsage: odradek --help\n\nFor more information, try '--help'.\n"
    }
   },
   {
@@ -789,7 +789,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: the invocation does not parse\nUsage: zombie_hunt [COMMAND]\n"
+    "stderr": "error: the invocation does not parse\nUsage: odradek [COMMAND]\n"
    }
   },
   {
@@ -802,7 +802,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: unrecognized subcommand 'wobble'\n\nUsage: zombie-hunt [COMMAND]\n\nFor more information, try '--help'.\n"
+    "stderr": "error: unrecognized subcommand 'wobble'\n\nUsage: odradek [COMMAND]\n\nFor more information, try '--help'.\n"
    }
   },
   {
@@ -815,7 +815,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: the following required arguments were not provided:\n  <SNAPSHOT>\n\nUsage: zombie-hunt scan <SNAPSHOT>\n\nFor more information, try '--help'.\n"
+    "stderr": "error: the following required arguments were not provided:\n  <SNAPSHOT>\n\nUsage: odradek scan <SNAPSHOT>\n\nFor more information, try '--help'.\n"
    }
   },
   {
@@ -832,7 +832,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: unexpected argument 'snap.txt' found\n\nUsage: zombie-hunt scan <SNAPSHOT>\n\nFor more information, try '--help'.\n"
+    "stderr": "error: unexpected argument 'snap.txt' found\n\nUsage: odradek scan <SNAPSHOT>\n\nFor more information, try '--help'.\n"
    }
   },
   {
@@ -894,7 +894,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: unexpected argument '--' found\n\nUsage: zombie-hunt plan [OPTIONS] <SNAPSHOT> [ENTRY_ID]\n\nFor more information, try '--help'.\n"
+    "stderr": "error: unexpected argument '--' found\n\nUsage: odradek plan [OPTIONS] <SNAPSHOT> [ENTRY_ID]\n\nFor more information, try '--help'.\n"
    }
   },
   {
@@ -912,7 +912,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: unexpected argument '--fixtures' found\n\n  tip: to pass '--fixtures' as a value, use '-- --fixtures'\n\nUsage: zombie-hunt scan <SNAPSHOT>\n\nFor more information, try '--help'.\n"
+    "stderr": "error: unexpected argument '--fixtures' found\n\n  tip: to pass '--fixtures' as a value, use '-- --fixtures'\n\nUsage: odradek scan <SNAPSHOT>\n\nFor more information, try '--help'.\n"
    }
   },
   {
@@ -933,7 +933,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: unexpected argument '--fixtures' found\n\n  tip: to pass '--fixtures' as a value, use '-- --fixtures'\n\nUsage: zombie-hunt observe <EARLIER> <LATER> <ENTRY_ID>\n\nFor more information, try '--help'.\n"
+    "stderr": "error: unexpected argument '--fixtures' found\n\n  tip: to pass '--fixtures' as a value, use '-- --fixtures'\n\nUsage: odradek observe <EARLIER> <LATER> <ENTRY_ID>\n\nFor more information, try '--help'.\n"
    }
   },
   {
@@ -951,7 +951,7 @@
    "expect": {
     "code": 2,
     "stdout": "",
-    "stderr": "error: unexpected argument '--bogus' found\n\n  tip: to pass '--bogus' as a value, use '-- --bogus'\n\nUsage: zombie-hunt plan [OPTIONS] <SNAPSHOT> [ENTRY_ID]\n\nFor more information, try '--help'.\n"
+    "stderr": "error: unexpected argument '--bogus' found\n\n  tip: to pass '--bogus' as a value, use '-- --bogus'\n\nUsage: odradek plan [OPTIONS] <SNAPSHOT> [ENTRY_ID]\n\nFor more information, try '--help'.\n"
    }
   },
   {
@@ -971,7 +971,7 @@
    "expect": {
     "code": 1,
     "stdout": "",
-    "stderr": "zombie-hunt: an argument arrived as a list where a single entry identifier was expected\n"
+    "stderr": "odradek: an argument arrived as a list where a single entry identifier was expected\n"
    }
   },
   {
@@ -991,7 +991,7 @@
    "expect": {
     "code": 1,
     "stdout": "",
-    "stderr": "zombie-hunt: an argument arrived as a list where a single path was expected\n"
+    "stderr": "odradek: an argument arrived as a list where a single path was expected\n"
    }
   },
   {
@@ -1015,7 +1015,7 @@
    "expect": {
     "code": 1,
     "stdout": "",
-    "stderr": "zombie-hunt: an argument arrived as a list where a single entry identifier was expected\n"
+    "stderr": "odradek: an argument arrived as a list where a single entry identifier was expected\n"
    }
   },
   {
@@ -1035,7 +1035,7 @@
    "expect": {
     "code": 1,
     "stdout": "",
-    "stderr": "zombie-hunt: the fixture reader exceeded its nesting ceiling\n"
+    "stderr": "odradek: the fixture reader exceeded its nesting ceiling\n"
    }
   },
   {
@@ -1051,7 +1051,7 @@
    "expect": {
     "code": 1,
     "stdout": "",
-    "stderr": "zombie-hunt: a snapshot whole number exceeded its digit limit\n"
+    "stderr": "odradek: a snapshot whole number exceeded its digit limit\n"
    }
   }
  ]

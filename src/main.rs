@@ -1,4 +1,4 @@
-//! Command line entry point, the zombie-hunt binary.
+//! Command line entry point, the odradek binary.
 //!
 //! Subcommands
 //!   scan     print the scan of one recorded cluster snapshot
@@ -33,7 +33,7 @@
 //! same invocation in its own voice. Help text and malformed
 //! invocation error text are clap's own forms. The documents
 //! the tool emits and the one error line discipline for its
-//! own refusals are unchanged. Zombie-hunt reads recorded
+//! own refusals are unchanged. Odradek reads recorded
 //! snapshots and prints documents and writes no file, and it
 //! never connects to a live cluster.
 
@@ -46,18 +46,18 @@ use clap::{Args, CommandFactory, Parser, Subcommand};
 #[cfg(unix)]
 use std::os::unix::ffi::OsStrExt;
 
-use zombie_hunt::errors::Error;
-use zombie_hunt::judgment::{FixturePlayer, JudgmentSource};
-use zombie_hunt::observe::build_observation;
-use zombie_hunt::paths::py_path_folded;
-use zombie_hunt::plan::{build_estate_plan, build_plan};
-use zombie_hunt::pytext::{PyStr, is_decimal};
-use zombie_hunt::scan::{classify, format_scan};
-use zombie_hunt::snapshot::parse_snapshot;
+use odradek::errors::Error;
+use odradek::judgment::{FixturePlayer, JudgmentSource};
+use odradek::observe::build_observation;
+use odradek::paths::py_path_folded;
+use odradek::plan::{build_estate_plan, build_plan};
+use odradek::pytext::{PyStr, is_decimal};
+use odradek::scan::{classify, format_scan};
+use odradek::snapshot::parse_snapshot;
 
 #[derive(Parser)]
 #[command(
-    name = "zombie_hunt",
+    name = "odradek",
     about = "Reads recorded cluster snapshots and prints the scan, a quarantine plan, or an observation report. Executes nothing.",
     disable_version_flag = true,
     disable_help_subcommand = true
@@ -648,23 +648,23 @@ const STDOUT_BUFFER_BYTES: usize = 8192;
 /// The port's own line for a print that failed inside the
 /// buffer, standing where the Python tool's interpreter
 /// printed its exception ignored noise.
-const FAILED_PRINT_LINE: &str = "zombie-hunt could not print its document";
+const FAILED_PRINT_LINE: &str = "odradek could not print its document";
 
 /// The port's own line for a print that failed at or past the
 /// buffer, standing where the Python tool printed a traceback.
-const UNCAUGHT_PRINT_LINE: &str = "zombie-hunt: the document print failed";
+const UNCAUGHT_PRINT_LINE: &str = "odradek: the document print failed";
 
 /// The port's own line for a list standing in a slot a command
 /// reads as one path, standing where the Python tool printed
 /// a traceback for its type error.
 const LIST_PATH_LINE: &str =
-    "zombie-hunt: an argument arrived as a list where a single path was expected";
+    "odradek: an argument arrived as a list where a single path was expected";
 
 /// The port's own line for a list standing in the entry slot,
 /// standing where the Python tool printed a traceback for its
 /// unhashable type error at the entry lookup.
 const LIST_ENTRY_LINE: &str =
-    "zombie-hunt: an argument arrived as a list where a single entry identifier was expected";
+    "odradek: an argument arrived as a list where a single entry identifier was expected";
 
 /// A print failure discovered while the output still fit the
 /// standard output buffer.
@@ -937,7 +937,7 @@ fn run_assigned(assigned: &Assigned) -> ExitCode {
 
 fn run() -> ExitCode {
     let mut args = std::env::args_os();
-    let program = args.next().unwrap_or_else(|| OsString::from("zombie_hunt"));
+    let program = args.next().unwrap_or_else(|| OsString::from("odradek"));
     let rest: Vec<OsString> = args.collect();
     match scan(&rest) {
         Scan::FireHelp(cmd) => {

@@ -5,13 +5,13 @@ mod common;
 use std::cell::RefCell;
 use std::path::PathBuf;
 
-use zombie_hunt::errors::Error;
-use zombie_hunt::judgment::{FixturePlayer, JudgmentSource, kill_call_request};
-use zombie_hunt::plan::{build_estate_plan, build_plan};
-use zombie_hunt::pyjson::{Value, dumps_canonical, loads};
-use zombie_hunt::pytext::PyStr;
-use zombie_hunt::scan::classify;
-use zombie_hunt::snapshot::parse_snapshot;
+use odradek::errors::Error;
+use odradek::judgment::{FixturePlayer, JudgmentSource, kill_call_request};
+use odradek::plan::{build_estate_plan, build_plan};
+use odradek::pyjson::{Value, dumps_canonical, loads};
+use odradek::pytext::PyStr;
+use odradek::scan::classify;
+use odradek::snapshot::parse_snapshot;
 
 use common::{ADVANCED_PLAN, EXPECTED_PLAN, SNAPSHOT_B, SNAPSHOT_TEXT};
 
