@@ -58,7 +58,7 @@ use odradek::snapshot::parse_snapshot;
 #[derive(Parser)]
 #[command(
     name = "odradek",
-    about = "Reads recorded cluster snapshots and prints the scan, a quarantine plan, or an observation report. Executes nothing.",
+    about = "Hunter agents stalk a compute cluster for zombie workloads, idle services, forgotten namespaces, and load balancers serving nobody. Nothing is deleted on suspicion; every target is proven dead first.",
     disable_version_flag = true,
     disable_help_subcommand = true
 )]

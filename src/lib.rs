@@ -1,5 +1,4 @@
-//! odradek. Proofs over recorded cluster snapshots,
-//! plans only.
+//! Hunter agents stalk a compute cluster for zombie workloads, idle services, forgotten namespaces, and load balancers serving nobody. Nothing is deleted on suspicion; every target is proven dead first.
 //!
 //! Odradek proves each kill before it fires and starts
 //! from a reversible quarantine. It works only from recorded
