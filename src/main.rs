@@ -1035,6 +1035,7 @@ mod tests {
     #[test]
     fn root_long_set_is_the_one_help_long() {
         assert_eq!(derived_root_longs(), vec!["--help".to_string()]);
+        assert_eq!(root_longs(), derived_root_longs());
     }
 
     /// Derive the short of the help argument of every
