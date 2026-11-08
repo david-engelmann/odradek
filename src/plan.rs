@@ -4,7 +4,7 @@ use crate::errors::{Error, Result};
 use crate::judgment::{JudgmentSource, check_answer, confidence_text, kill_call_request, trusted};
 use crate::pytext::PyStr;
 use crate::scan::{PROVEN, Verdict, check_computed, evidence_lines, holds_text};
-use crate::snapshot::Snapshot;
+use crate::snapshot::{Entry, Snapshot};
 
 pub const OBSERVATION_MULTIPLE: u32 = 10;
 
@@ -72,10 +72,28 @@ pub fn build_plan(
             verdict.classification
         )));
     }
+    build_block(entry, verdict, source)
+}
+
+/// Write the plan block for one entry and the verdict the
+/// scan gave it.
+///
+/// Both plan forms build their blocks here, the single form
+/// after its lookup and refusals and the estate form from
+/// the verdict it already holds, so the block construction
+/// stands in one implementation and never in two. The plan
+/// prints the window, and the print carries the digit limit
+/// (ZH-31), checked here after the single form's refusals,
+/// where the oracle's formatting of the window line raises.
+/// The estate form has already checked every window ahead
+/// of its first question, so the check cannot raise on that
+/// path.
+fn build_block(
+    entry: &Entry,
+    verdict: &Verdict,
+    source: Option<&dyn JudgmentSource>,
+) -> Result<String> {
     let window = entry.signal_interval.mul_small(OBSERVATION_MULTIPLE);
-    // The plan prints the window, and the print carries the
-    // digit limit (ZH-31), checked here after the refusals,
-    // where the oracle's formatting of the window line raises.
     check_computed(&window)?;
     let mut lines = vec![
         format!("quarantine plan for {}", entry.id),
@@ -136,7 +154,7 @@ pub fn build_plan(
 /// estate as a whole. A snapshot with no proven zombies
 /// prints the opening line and the closing line alone.
 pub fn build_estate_plan(
-    snapshot: &Snapshot,
+    _snapshot: &Snapshot,
     verdicts: &[Verdict],
     source: Option<&dyn JudgmentSource>,
 ) -> Result<String> {
@@ -153,8 +171,8 @@ pub fn build_estate_plan(
         check_computed(&window)?;
     }
     let mut document = String::from("estate quarantine plan\n");
-    for verdict in &proven {
-        document.push_str(&build_plan(snapshot, verdicts, &verdict.entry.id, source)?);
+    for &verdict in &proven {
+        document.push_str(&build_block(verdict.entry, verdict, source)?);
     }
     document.push_str(
         "executes nothing, this plan is a document and the tool performs no part of it\n",
