@@ -694,6 +694,20 @@
    }
   },
   {
+   "name": "help-scan-short",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "scan",
+    "-h"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "Usage: odradek scan <SNAPSHOT>\n\nArguments:\n  <SNAPSHOT>  \n\nOptions:\n  -h, --help  Print help\n",
+    "stderr": ""
+   }
+  },
+  {
    "name": "help-plan",
    "source": "clap",
    "setup": {},
@@ -708,12 +722,40 @@
    }
   },
   {
+   "name": "help-plan-short",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "plan",
+    "-h"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "Usage: odradek plan [OPTIONS] <SNAPSHOT> [ENTRY_ID]\n\nArguments:\n  <SNAPSHOT>  \n  [ENTRY_ID]  \n\nOptions:\n      --fixtures <FIXTURES>  \n  -h, --help                 Print help\n",
+    "stderr": ""
+   }
+  },
+  {
    "name": "help-observe",
    "source": "clap",
    "setup": {},
    "argv": [
     "observe",
     "--help"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "Usage: odradek observe <EARLIER> <LATER> <ENTRY_ID>\n\nArguments:\n  <EARLIER>   \n  <LATER>     \n  <ENTRY_ID>  \n\nOptions:\n  -h, --help  Print help\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "help-observe-short",
+   "source": "clap",
+   "setup": {},
+   "argv": [
+    "observe",
+    "-h"
    ],
    "expect": {
     "code": 0,

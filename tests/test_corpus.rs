@@ -19,7 +19,10 @@ fn the_corpus_runs_and_its_split_is_pinned() {
     // because its invocation is the estate form now and no
     // longer a usage refusal. The estate form is pinned in
     // tests/test_estate.rs instead.
-    assert_eq!((oracle, clap), (34, 24), "corpus source split");
+    // Round 10 adds three clap cases, help-scan-short,
+    // help-plan-short, and help-observe-short, firing the
+    // short help spelling behind each subcommand (ZH-55).
+    assert_eq!((oracle, clap), (34, 27), "corpus source split");
     let mut failures = Vec::new();
     for case in &cases {
         if let Err(detail) = run_corpus_case(case) {

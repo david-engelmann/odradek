@@ -1039,13 +1039,16 @@ mod tests {
     }
 
     /// Derive the short of the help argument of every
-    /// command in the tree, the root command first and
-    /// then its subcommands in their own order, finding
-    /// each argument by its help long in the manner
+    /// command in the tree, walking the built command
+    /// recursively, each command first and then its
+    /// subcommands in their own order, finding each
+    /// argument by its help long in the manner
     /// derived_root_longs collects the longs of the root
     /// command, and standing absent in a command's place
     /// where that command carries no argument with the
-    /// help long.
+    /// help long. ZH-54 gives the walk this recursive
+    /// form, where the derivation of ZH-51 as first
+    /// written walked one level deep.
     fn derived_help_shorts() -> Vec<Option<char>> {
         fn help_short(command: &clap::Command) -> Option<char> {
             for arg in command.get_arguments() {
@@ -1055,12 +1058,16 @@ mod tests {
             }
             None
         }
+        fn collect(command: &clap::Command, shorts: &mut Vec<Option<char>>) {
+            shorts.push(help_short(command));
+            for sub in command.get_subcommands() {
+                collect(sub, shorts);
+            }
+        }
         let mut command = Cli::command();
         command.build();
-        let mut shorts = vec![help_short(&command)];
-        for sub in command.get_subcommands() {
-            shorts.push(help_short(sub));
-        }
+        let mut shorts = Vec::new();
+        collect(&command, &mut shorts);
         shorts
     }
 
