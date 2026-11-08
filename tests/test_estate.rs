@@ -347,3 +347,46 @@ fn the_plan_help_names_the_entry_identifier_as_optional() {
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+// ZH-47 and ZH-48. The estate at scale, built from the
+// verdicts the scan hands it.
+
+#[test]
+fn an_estate_of_hundreds_of_proven_entries_is_the_framed_set_of_single_plans() {
+    // Three hundred proven zombies recorded in reverse
+    // identifier order, with twenty live entries standing
+    // among them. The estate document is the framing around
+    // the single plan of every proven entry in identifier
+    // order, asserted as one whole document, so the estate
+    // path the restructure rewrote is pinned at scale and
+    // not only on the small estates above.
+    let mut text = String::from("snapshot 100000000\n");
+    for n in (0..300).rev() {
+        text.push_str(&format!(
+            "entry z-{n:03}\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 90000000\nholds none\nowner ghost-7\n"
+        ));
+        if n % 15 == 0 {
+            text.push_str(&format!(
+                "entry live-{n:03}\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99999990\nholds none\nowner none\n"
+            ));
+        }
+    }
+    let snap = parse_snapshot(&PyStr::from_str(&text), &PyStr::from_str("snap.txt"))
+        .expect("snapshot parses");
+    let verdicts = classify(&snap).expect("classification stands");
+    let mut proven: Vec<_> = verdicts
+        .iter()
+        .filter(|verdict| verdict.classification == odradek::scan::PROVEN)
+        .collect();
+    proven.sort_by(|left, right| left.entry.id.cmp(&right.entry.id));
+    assert_eq!(proven.len(), 300, "the whole synthetic set is proven");
+    let mut expected = String::from("estate quarantine plan\n");
+    for verdict in &proven {
+        expected
+            .push_str(&build_plan(&snap, &verdicts, &verdict.entry.id, None).expect("single plan"));
+    }
+    expected.push_str(CLOSING);
+    let document = build_estate_plan(&snap, &verdicts, None).expect("estate");
+    assert_eq!(document.matches("quarantine plan for").count(), 300);
+    assert_eq!(document, expected);
+}
