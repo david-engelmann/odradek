@@ -115,7 +115,7 @@ Every command reads only the files it is handed and writes nothing to any file. 
 
 ## Status
 
-The tool is complete at the surface its contract describes, with no stubbed or held back part, and the full CI gate runs on every change. Round 9 landed in PR 21, guarding the root help long set and every command's help short with derived pins and executing the two discrimination mutations Round 6 could not run. Closed rounds 9 of 100.
+The tool is complete at the surface its contract describes, with no stubbed or held back part, and the full CI gate runs on every change. Round 10 landed in PR 23, making the help short derivation recursive and pinning the short help spelling behind every subcommand. Closed rounds 10 of 100.
 
 ## License
 
