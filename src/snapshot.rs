@@ -9,6 +9,8 @@
 //! mixed scripts digit by digit and carries the 4300 digit
 //! character limit of ZH-31.
 
+use std::collections::HashMap;
+
 use crate::bignum::BigNum;
 use crate::errors::{Error, Result};
 use crate::pytext::{PyStr, decimal_value, is_decimal, py_repr};
@@ -61,6 +63,20 @@ impl Snapshot {
     /// The entry carrying one identifier, where one stands.
     pub fn entry(&self, id: &PyStr) -> Option<&Entry> {
         self.entries.iter().find(|entry| &entry.id == id)
+    }
+
+    /// The entries of the snapshot keyed by identifier,
+    /// built once by a reader that resolves many identifiers
+    /// against the one snapshot. The parser refuses a
+    /// duplicated entry identifier (ZH-1), so every
+    /// identifier keys exactly the entry the linear search
+    /// in entry finds, and no entry stands behind another
+    /// under one key.
+    pub fn entry_index(&self) -> HashMap<&PyStr, &Entry> {
+        self.entries
+            .iter()
+            .map(|entry| (&entry.id, entry))
+            .collect()
     }
 }
 
