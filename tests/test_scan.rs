@@ -150,6 +150,38 @@ fn a_scan_of_three_hundred_entries_with_owners_matches_its_whole_document() {
 }
 
 #[test]
+fn a_duplicated_owner_identifier_resolves_to_the_first_entry() {
+    // A snapshot built through the public types can carry a
+    // duplicated identifier the parser would refuse (ZH-1).
+    // The index the classification reads through keeps the
+    // first entry under the identifier, exactly as the linear
+    // search in entry does, so stale-1's owner done-run reads
+    // as the finished entry recorded first and never as the
+    // running copy standing behind it.
+    let mut snap = parse_snapshot(
+        &PyStr::from_str(SNAPSHOT_TEXT),
+        &PyStr::from_str("snap.txt"),
+    )
+    .expect("snapshot parses");
+    let mut duplicate = snap
+        .entries
+        .iter()
+        .find(|entry| entry.id == PyStr::from_str("done-run"))
+        .expect("done-run stands")
+        .clone();
+    duplicate.state = PyStr::from_str("running");
+    snap.entries.push(duplicate);
+    let verdicts = classify(&snap).expect("classification stands");
+    let stale = verdicts
+        .iter()
+        .find(|verdict| verdict.entry.id == PyStr::from_str("stale-1"))
+        .expect("stale-1 stands classified");
+    assert_eq!(stale.classification, "proven zombie");
+    assert_eq!(stale.owner.status, "satisfied");
+    assert_eq!(stale.owner.fact, "owner done-run is recorded finished");
+}
+
+#[test]
 fn repeated_and_shuffled_snapshots_scan_byte_identically() {
     assert_eq!(scan(SNAPSHOT_TEXT), scan(SNAPSHOT_TEXT));
     // Reverse the entry blocks and reverse one holds list, as

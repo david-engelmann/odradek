@@ -67,16 +67,19 @@ impl Snapshot {
 
     /// The entries of the snapshot keyed by identifier,
     /// built once by a reader that resolves many identifiers
-    /// against the one snapshot. The parser refuses a
-    /// duplicated entry identifier (ZH-1), so every
-    /// identifier keys exactly the entry the linear search
-    /// in entry finds, and no entry stands behind another
-    /// under one key.
+    /// against the one snapshot. The first entry recorded
+    /// under each identifier is the one the index holds, so
+    /// every identifier keys exactly the entry the linear
+    /// search in entry finds, on a parsed snapshot, where
+    /// the parser refuses a duplicated entry identifier
+    /// (ZH-1), and on a snapshot built through the public
+    /// types alike.
     pub fn entry_index(&self) -> HashMap<&PyStr, &Entry> {
-        self.entries
-            .iter()
-            .map(|entry| (&entry.id, entry))
-            .collect()
+        let mut index = HashMap::with_capacity(self.entries.len());
+        for entry in &self.entries {
+            index.entry(&entry.id).or_insert(entry);
+        }
+        index
     }
 }
 

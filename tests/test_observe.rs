@@ -318,6 +318,46 @@ fn an_observation_over_three_hundred_entry_snapshots_matches_its_whole_report() 
 }
 
 #[test]
+fn a_duplicated_owner_in_the_later_snapshot_resolves_to_the_first_entry() {
+    // The later snapshot built through the public types can
+    // carry a duplicated identifier the parser would refuse
+    // (ZH-1). The index the observation reads through keeps
+    // the first entry under the identifier, exactly as the
+    // linear search does, so the owner evidence for stale-1
+    // reads done-run as the finished entry recorded first and
+    // never as the running copy standing behind it, and the
+    // quarantine still reads held at the exact boundary.
+    let earlier = parse_snapshot(
+        &PyStr::from_str(EARLIER_TEXT),
+        &PyStr::from_str("earlier.txt"),
+    )
+    .expect("earlier parses");
+    let mut later = parse_snapshot(
+        &PyStr::from_str(EARLIER_TEXT),
+        &PyStr::from_str("later.txt"),
+    )
+    .expect("later parses");
+    later.time = odradek::bignum::BigNum::from_u64(101200);
+    let mut duplicate = later
+        .entries
+        .iter()
+        .find(|entry| entry.id == PyStr::from_str("done-run"))
+        .expect("done-run stands")
+        .clone();
+    duplicate.state = PyStr::from_str("running");
+    later.entries.push(duplicate);
+    let verdicts = classify(&earlier).expect("classification stands");
+    let document = build_observation(&earlier, &later, &verdicts, &PyStr::from_str("stale-1"))
+        .expect("observation");
+    assert_eq!(
+        document,
+        format!(
+            "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\n{CLOSING}"
+        )
+    );
+}
+
+#[test]
 fn observe_modifies_none_of_its_inputs() {
     let dir = common::test_dir("observe-cli-inputs");
     let earlier = common::write(&dir, "early.txt", EARLIER_TEXT);
