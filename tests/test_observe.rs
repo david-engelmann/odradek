@@ -276,6 +276,87 @@ fn observe_accepts_no_fixtures_option() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+// ZH-59 and ZH-60. The observation at scale, its verdict
+// reading the later snapshot through the one index.
+
+#[test]
+fn an_observation_over_three_hundred_entry_snapshots_matches_its_whole_report() {
+    // Three hundred entries stand in each snapshot, the
+    // watched entry and its finished owner standing among
+    // two hundred ninety eight fillers in the middle of the
+    // recording rather than at its head, so the verdict's
+    // resolution of the watched entry reads through the
+    // later index at scale. The later snapshot records the
+    // watched entry exactly as the earlier one did, so the
+    // watch held at the exact window boundary, and the
+    // whole report is asserted byte for byte.
+    fn snapshot_at(time: u64) -> String {
+        let filler = |n: usize| {
+            format!(
+                "entry f-{n:03}\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 90000\nholds none\nowner none\n"
+            )
+        };
+        let mut text = format!("snapshot {time}\n");
+        for n in 0..149 {
+            text.push_str(&filler(n));
+        }
+        text.push_str("entry watched-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-keeper\n");
+        text.push_str("entry done-keeper\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\n");
+        for n in 149..298 {
+            text.push_str(&filler(n));
+        }
+        text
+    }
+    let document =
+        observe(&snapshot_at(100000), &snapshot_at(101200), "watched-1").expect("observation");
+    assert_eq!(
+        document,
+        format!(
+            "observation report for watched-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-keeper is recorded finished\n{CLOSING}"
+        )
+    );
+}
+
+#[test]
+fn a_duplicated_owner_in_the_later_snapshot_resolves_to_the_first_entry() {
+    // The later snapshot built through the public types can
+    // carry a duplicated identifier the parser would refuse
+    // (ZH-1). The index the observation reads through keeps
+    // the first entry under the identifier, exactly as the
+    // linear search does, so the owner evidence for stale-1
+    // reads done-run as the finished entry recorded first and
+    // never as the running copy standing behind it, and the
+    // quarantine still reads held at the exact boundary.
+    let earlier = parse_snapshot(
+        &PyStr::from_str(EARLIER_TEXT),
+        &PyStr::from_str("earlier.txt"),
+    )
+    .expect("earlier parses");
+    let mut later = parse_snapshot(
+        &PyStr::from_str(EARLIER_TEXT),
+        &PyStr::from_str("later.txt"),
+    )
+    .expect("later parses");
+    later.time = odradek::bignum::BigNum::from_u64(101200);
+    let mut duplicate = later
+        .entries
+        .iter()
+        .find(|entry| entry.id == PyStr::from_str("done-run"))
+        .expect("done-run stands")
+        .clone();
+    duplicate.state = PyStr::from_str("running");
+    later.entries.push(duplicate);
+    let verdicts = classify(&earlier).expect("classification stands");
+    let document = build_observation(&earlier, &later, &verdicts, &PyStr::from_str("stale-1"))
+        .expect("observation");
+    assert_eq!(
+        document,
+        format!(
+            "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\n{CLOSING}"
+        )
+    );
+}
+
 #[test]
 fn observe_modifies_none_of_its_inputs() {
     let dir = common::test_dir("observe-cli-inputs");

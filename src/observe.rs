@@ -3,7 +3,7 @@
 use crate::errors::{Error, Result};
 use crate::plan::OBSERVATION_MULTIPLE;
 use crate::pytext::PyStr;
-use crate::scan::{CONTRADICTED, PROVEN, Verdict, check_computed, classify_entry};
+use crate::scan::{CONTRADICTED, PROVEN, Verdict, check_computed, classify_entry_with_index};
 use crate::snapshot::{Entry, Snapshot};
 
 /// Write the observation report for one plan or refuse.
@@ -76,12 +76,19 @@ pub fn build_observation(
 }
 
 /// The held or broken verdict and its evidence lines.
+///
+/// One index of the later snapshot is built before anything
+/// is resolved, and both resolutions this verdict reads go
+/// through it, the watched entry itself and the owner inside
+/// the classification below, so the run builds the index
+/// once and searches the later entry list never (ZH-59).
 fn verdict_of(
     _earlier: &Snapshot,
     later: &Snapshot,
     entry: &Entry,
 ) -> Result<(String, Vec<String>)> {
-    let Some(later_entry) = later.entry(&entry.id) else {
+    let index = later.entry_index();
+    let Some(later_entry) = index.get(&entry.id).copied() else {
         return Ok((
             "outcome quarantine held".to_string(),
             vec![
@@ -94,7 +101,7 @@ fn verdict_of(
     // The verdict classifies the later entry again, so the
     // later entry's own threshold print limit applies here
     // (ZH-31), at the classification the oracle runs.
-    let owner = classify_entry(later, later_entry)?.owner;
+    let owner = classify_entry_with_index(later, later_entry, &index)?.owner;
     let owner_broke = owner.status == CONTRADICTED;
     let label = if owner_broke {
         "evidence against"

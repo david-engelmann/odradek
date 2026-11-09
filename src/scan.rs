@@ -1,5 +1,7 @@
 //! The proof rules, the classification, and the scan document.
 
+use std::collections::HashMap;
+
 use crate::bignum::BigNum;
 use crate::errors::{Error, Result};
 use crate::pytext::PyStr;
@@ -91,14 +93,14 @@ fn signal_rule(snapshot: &Snapshot, entry: &Entry) -> Result<RuleVerdict> {
     }
 }
 
-fn owner_rule(snapshot: &Snapshot, entry: &Entry) -> RuleVerdict {
+fn owner_rule(index: &HashMap<&PyStr, &Entry>, entry: &Entry) -> RuleVerdict {
     let Some(owner_id) = &entry.owner else {
         return RuleVerdict {
             status: UNKNOWN,
             fact: "no owner reference is recorded for this entry".to_string(),
         };
     };
-    match snapshot.entry(owner_id) {
+    match index.get(owner_id).copied() {
         None => RuleVerdict {
             status: SATISFIED,
             fact: format!("owner {owner_id} is absent from the snapshot"),
@@ -148,9 +150,27 @@ fn in_flight_rule(_snapshot: &Snapshot, entry: &Entry) -> RuleVerdict {
 }
 
 /// Classify one entry under the proof rules and nothing else.
+///
+/// The one entry form builds the snapshot's entry index for
+/// its one classification, on the same terms classify builds
+/// it once for the whole snapshot (ZH-58).
 pub fn classify_entry<'a>(snapshot: &'a Snapshot, entry: &'a Entry) -> Result<Verdict<'a>> {
+    let index = snapshot.entry_index();
+    classify_entry_with_index(snapshot, entry, &index)
+}
+
+/// Classify one entry with the snapshot's entry index
+/// standing built, so a reader classifying many entries, or
+/// resolving an owner inside one classification, reads every
+/// owner through the one index and never searches the entry
+/// list (ZH-58).
+pub(crate) fn classify_entry_with_index<'a>(
+    snapshot: &'a Snapshot,
+    entry: &'a Entry,
+    index: &HashMap<&PyStr, &Entry>,
+) -> Result<Verdict<'a>> {
     let signal = signal_rule(snapshot, entry)?;
-    let owner = owner_rule(snapshot, entry);
+    let owner = owner_rule(index, entry);
     let in_flight = in_flight_rule(snapshot, entry);
     let live = match &entry.last_signal {
         Some(last_signal) => snapshot.time.sub(last_signal) < entry.signal_interval,
@@ -178,11 +198,17 @@ pub fn classify_entry<'a>(snapshot: &'a Snapshot, entry: &'a Entry) -> Result<Ve
 }
 
 /// Classify every entry in the snapshot, in recorded order.
+///
+/// The entry index is built once, before any entry is
+/// classified, and lives until every entry stands
+/// classified, so the owner rule reads through it and no
+/// entry's classification searches the list again (ZH-58).
 pub fn classify(snapshot: &Snapshot) -> Result<Vec<Verdict<'_>>> {
+    let index = snapshot.entry_index();
     snapshot
         .entries
         .iter()
-        .map(|entry| classify_entry(snapshot, entry))
+        .map(|entry| classify_entry_with_index(snapshot, entry, &index))
         .collect()
 }
 
