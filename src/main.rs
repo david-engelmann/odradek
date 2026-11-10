@@ -1196,16 +1196,20 @@ mod tests {
 
     /// ZH-63, family 1. A help long carrying an explicit
     /// value refuses, and the token itself stands in the
-    /// handed over stream.
+    /// handed over stream. The trailing help token separates
+    /// the refusal from a mere no read, since the refusal's
+    /// block keeps it from firing while a no read lets it
+    /// fire (the red team's Round 12 Minor 1, adopted in the
+    /// owner fix pass).
 
     #[test]
     fn scan_help_long_with_a_value_refuses_at_the_root() {
-        assert_run(&["--help=x"], &["--help=x"]);
+        assert_run(&["--help=x", "-h"], &["--help=x", "-h"]);
     }
 
     #[test]
     fn scan_help_long_abbreviation_with_a_value_refuses_behind_scan() {
-        assert_run(&["scan", "--h=x"], &["scan", "--h=x"]);
+        assert_run(&["scan", "--h=x", "-h"], &["scan", "--h=x", "-h"]);
     }
 
     /// ZH-63, family 1. A name longer than the help long
@@ -1598,6 +1602,20 @@ mod tests {
         );
     }
 
+    /// ZH-63, family 4. A stem carrying a non ASCII point
+    /// reads as no flag, and the token is gathered as an
+    /// unknown option, the branch the census names with its
+    /// ground (the red team's Round 12 Minor 3, adopted in
+    /// the owner fix pass).
+
+    #[test]
+    fn scan_flag_non_ascii_stem_reads_no_flag() {
+        assert_run(
+            &["plan", "snap", "--fixturés=x"],
+            &["plan", "--fixturés=x", "--", "snap"],
+        );
+    }
+
     /// ZH-63, family 4. A subcommand carrying no value flag
     /// reads the flag token as an unknown option.
 
@@ -1817,6 +1835,23 @@ mod tests {
         assert_run(
             &["plan", "snap", "--fixtures", "dir", "--"],
             &["plan", "--fixtures=dir", "--", "snap", "--"],
+        );
+    }
+
+    /// ZH-63, family 6. The veto tests the last non empty
+    /// segment holding exactly one separator, so a second
+    /// separator standing in that segment escapes it and
+    /// the distribution assigns, the second separator
+    /// standing as the estate slot's token (the red team's
+    /// Round 12 Minor 2, adopted in the owner fix pass).
+
+    #[test]
+    fn scan_separator_second_in_the_last_segment_escapes_the_veto() {
+        assert_assigned(
+            &["plan", "snap", "--fixtures=x", "--", "--"],
+            Cmd::Plan,
+            &[Want::One("snap"), Want::One("--")],
+            Some("x"),
         );
     }
 
