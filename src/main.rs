@@ -1091,4 +1091,801 @@ mod tests {
         assert_eq!(shorts.len(), 4);
         assert!(shorts.iter().all(|short| *short == Some('h')));
     }
+
+    /// The tokens of one argument stream, from their text
+    /// forms.
+    fn stream(parts: &[&str]) -> Vec<OsString> {
+        parts.iter().map(OsString::from).collect()
+    }
+
+    /// What one slot of an assigned answer is expected to
+    /// hold, one token or a list.
+    enum Want {
+        One(&'static str),
+        Listed,
+    }
+
+    /// Assert the walk fires the help of the named command,
+    /// or of the top level when the name is absent.
+    fn assert_fire_help(parts: &[&str], want: Option<Cmd>) {
+        match scan(&stream(parts)) {
+            Scan::FireHelp(cmd) => assert!(cmd == want, "the walk fired the wrong help"),
+            Scan::Assigned(_) => panic!("expected help to fire, the walk assigned the stream"),
+            Scan::Run(_) => panic!("expected help to fire, the walk handed the stream over"),
+        }
+    }
+
+    /// Assert the walk hands the stream over, token for
+    /// token.
+    fn assert_run(parts: &[&str], want: &[&str]) {
+        match scan(&stream(parts)) {
+            Scan::Run(tokens) => assert_eq!(tokens, stream(want)),
+            Scan::FireHelp(_) => panic!("expected a hand over, help fired"),
+            Scan::Assigned(_) => panic!("expected a hand over, the walk assigned the stream"),
+        }
+    }
+
+    /// Assert the walk assigns the stream to the named
+    /// command, with the slots and the fixtures value the
+    /// census derives.
+    fn assert_assigned(
+        parts: &[&str],
+        want_cmd: Cmd,
+        want_slots: &[Want],
+        want_fixtures: Option<&str>,
+    ) {
+        match scan(&stream(parts)) {
+            Scan::Assigned(assigned) => {
+                assert!(
+                    assigned.cmd == want_cmd,
+                    "the walk assigned the wrong command"
+                );
+                assert_eq!(assigned.slots.len(), want_slots.len(), "slot count");
+                for (slot, want) in assigned.slots.iter().zip(want_slots.iter()) {
+                    match (slot, want) {
+                        (Slot::One(value), Want::One(text)) => {
+                            assert!(value.as_os_str() == OsStr::new(text), "slot value");
+                        }
+                        (Slot::Listed, Want::Listed) => {}
+                        (Slot::One(_), Want::Listed) => {
+                            panic!("expected a list in this slot, the walk assigned one token");
+                        }
+                        (Slot::Listed, Want::One(_)) => {
+                            panic!("expected one token in this slot, the walk assigned a list");
+                        }
+                    }
+                }
+                assert!(
+                    assigned.fixtures.as_deref() == want_fixtures.map(OsStr::new),
+                    "fixtures value"
+                );
+            }
+            Scan::FireHelp(_) => panic!("expected an assignment, help fired"),
+            Scan::Run(_) => panic!("expected an assignment, the walk handed the stream over"),
+        }
+    }
+
+    /// ZH-63, family 1. The long arm of the help read fires
+    /// on the exact help long and on its unique abbreviation,
+    /// against the root table and each subcommand table.
+
+    #[test]
+    fn scan_help_long_exact_fires_at_the_root() {
+        assert_fire_help(&["--help"], None);
+    }
+
+    #[test]
+    fn scan_help_long_exact_fires_behind_observe() {
+        assert_fire_help(&["observe", "--help"], Some(Cmd::Observe));
+    }
+
+    #[test]
+    fn scan_help_long_abbreviation_fires_at_the_root() {
+        assert_fire_help(&["--h"], None);
+    }
+
+    #[test]
+    fn scan_help_long_abbreviation_fires_behind_scan() {
+        assert_fire_help(&["scan", "--he"], Some(Cmd::Scan));
+    }
+
+    #[test]
+    fn scan_help_long_abbreviation_fires_behind_plan() {
+        assert_fire_help(&["plan", "--h"], Some(Cmd::Plan));
+    }
+
+    /// ZH-63, family 1. A help long carrying an explicit
+    /// value refuses, and the token itself stands in the
+    /// handed over stream.
+
+    #[test]
+    fn scan_help_long_with_a_value_refuses_at_the_root() {
+        assert_run(&["--help=x"], &["--help=x"]);
+    }
+
+    #[test]
+    fn scan_help_long_abbreviation_with_a_value_refuses_behind_scan() {
+        assert_run(&["scan", "--h=x"], &["scan", "--h=x"]);
+    }
+
+    /// ZH-63, family 1. A name longer than the help long
+    /// matches nothing, the match test being the long
+    /// starting with the name, and the token is gathered as
+    /// an unknown option.
+
+    #[test]
+    fn scan_help_longer_name_reads_no_help() {
+        assert_run(&["scan", "--helpful"], &["scan", "--helpful"]);
+    }
+
+    /// ZH-63, family 1. A name of two points never reaches
+    /// the match, the arm requiring more than two points.
+
+    #[test]
+    fn scan_help_name_of_two_points_reads_no_help() {
+        assert_run(&["scan", "--=x"], &["scan", "--=x"]);
+    }
+
+    /// ZH-63, family 1. A name carrying a non-ASCII point
+    /// reads no help, the name test reading ASCII alone.
+
+    #[test]
+    fn scan_help_non_ascii_name_reads_no_help() {
+        assert_run(&["scan", "--hé"], &["scan", "--hé"]);
+    }
+
+    /// ZH-63, family 1. A name matching no long in the table
+    /// reads no help and is gathered as an unknown option.
+
+    #[test]
+    fn scan_help_name_matching_no_long_reads_no_help() {
+        assert_run(&["observe", "--bogus"], &["observe", "--bogus"]);
+    }
+
+    /// ZH-63, family 2. The short arm of the help read fires
+    /// on the bare short and on any continuation but the two
+    /// refusing ones.
+
+    #[test]
+    fn scan_help_short_fires_at_the_root() {
+        assert_fire_help(&["-h"], None);
+    }
+
+    #[test]
+    fn scan_help_short_fires_behind_observe() {
+        assert_fire_help(&["observe", "-h"], Some(Cmd::Observe));
+    }
+
+    #[test]
+    fn scan_help_short_bundle_fires_behind_scan() {
+        assert_fire_help(&["scan", "-hx"], Some(Cmd::Scan));
+    }
+
+    #[test]
+    fn scan_help_short_bundle_fires_behind_plan() {
+        assert_fire_help(&["plan", "-hh"], Some(Cmd::Plan));
+    }
+
+    /// ZH-63, family 2. A space as the third point fires,
+    /// the help read running ahead of the space rule of the
+    /// classification read.
+
+    #[test]
+    fn scan_help_short_with_a_space_fires_behind_scan() {
+        assert_fire_help(&["scan", "-h x"], Some(Cmd::Scan));
+    }
+
+    /// ZH-63, family 2. An equals continuation refuses, and
+    /// the replacement --help= plus the rest of the token
+    /// stands in the handed over stream.
+
+    #[test]
+    fn scan_help_short_with_a_value_refuses_at_the_root() {
+        assert_run(&["-h=x"], &["--help=x"]);
+    }
+
+    #[test]
+    fn scan_help_short_with_an_empty_value_refuses_behind_scan() {
+        assert_run(&["scan", "-h="], &["scan", "--help="]);
+    }
+
+    /// ZH-63, family 2. A dash continuation refuses, and the
+    /// replacement carries the token from its second point,
+    /// so the dash itself stands inside the refused form.
+
+    #[test]
+    fn scan_help_short_with_a_dash_value_refuses_behind_plan() {
+        assert_run(&["plan", "-h-x"], &["plan", "--help=-x"]);
+    }
+
+    #[test]
+    fn scan_help_short_with_a_lone_dash_refuses_at_the_root() {
+        assert_run(&["-h-"], &["--help=-"]);
+    }
+
+    /// ZH-63, family 2. The capital letter is not the short
+    /// arm, and the token is gathered as an unknown option.
+
+    #[test]
+    fn scan_help_capital_reads_no_help() {
+        assert_run(&["scan", "-H"], &["scan", "-H"]);
+    }
+
+    /// ZH-63, family 2. Help fires ahead of the values the
+    /// walk has already collected, though they could never
+    /// distribute.
+
+    #[test]
+    fn scan_help_fires_ahead_of_collected_values() {
+        assert_fire_help(&["scan", "a", "b", "-h"], Some(Cmd::Scan));
+    }
+
+    /// ZH-63, family 2. Help fires ahead of the assignment
+    /// though a fixtures value stands consumed.
+
+    #[test]
+    fn scan_help_fires_ahead_of_a_consumed_flag() {
+        assert_fire_help(&["plan", "snap", "--fixtures=x", "-h"], Some(Cmd::Plan));
+    }
+
+    /// ZH-63, family 3. The classification read on the bare
+    /// shapes: a bare word and the lone dash are positional.
+
+    #[test]
+    fn scan_read_lone_dash_is_a_value() {
+        assert_assigned(&["scan", "-"], Cmd::Scan, &[Want::One("-")], None);
+    }
+
+    /// ZH-63, family 3. The negative number pattern: a run
+    /// of digits, or a run, a point, and a run, the whole
+    /// part allowed empty and the fraction required.
+
+    #[test]
+    fn scan_read_negative_integer_is_a_value() {
+        assert_assigned(&["scan", "-2"], Cmd::Scan, &[Want::One("-2")], None);
+    }
+
+    #[test]
+    fn scan_read_negative_fraction_is_a_value() {
+        assert_assigned(&["scan", "-2.5"], Cmd::Scan, &[Want::One("-2.5")], None);
+    }
+
+    #[test]
+    fn scan_read_negative_with_an_empty_whole_part_is_a_value() {
+        assert_assigned(&["scan", "-.5"], Cmd::Scan, &[Want::One("-.5")], None);
+    }
+
+    #[test]
+    fn scan_read_negative_with_an_empty_fraction_is_an_option() {
+        assert_run(&["scan", "-2."], &["scan", "-2."]);
+    }
+
+    /// ZH-63, family 3. The pattern's end anchor admits one
+    /// trailing newline, as a Python text pattern's does,
+    /// and no more than one.
+
+    #[test]
+    fn scan_read_negative_with_one_trailing_newline_is_a_value() {
+        assert_assigned(&["scan", "-2\n"], Cmd::Scan, &[Want::One("-2\n")], None);
+    }
+
+    #[test]
+    fn scan_read_negative_with_two_trailing_newlines_is_an_option() {
+        assert_run(&["scan", "-2\n\n"], &["scan", "-2\n\n"]);
+    }
+
+    /// ZH-63, family 3. The digit set of the pattern is the
+    /// full Unicode decimal set.
+
+    #[test]
+    fn scan_read_negative_in_unicode_digits_is_a_value() {
+        assert_assigned(&["scan", "-١٢"], Cmd::Scan, &[Want::One("-١٢")], None);
+    }
+
+    /// ZH-63, family 3. The long prefix decides ahead of the
+    /// negative pattern, and a second point in the fraction
+    /// breaks the pattern.
+
+    #[test]
+    fn scan_read_double_dash_digits_are_an_option() {
+        assert_run(&["scan", "--2"], &["scan", "--2"]);
+    }
+
+    #[test]
+    fn scan_read_negative_with_a_second_point_is_an_option() {
+        assert_run(&["scan", "-2.5.5"], &["scan", "-2.5.5"]);
+    }
+
+    /// ZH-63, family 3. A dash token carrying a space reads
+    /// as positional whatever its prefix, the short help
+    /// family standing as the one exception and decided by
+    /// the help read first.
+
+    #[test]
+    fn scan_read_dash_token_with_a_space_is_a_value() {
+        assert_assigned(&["scan", "- x"], Cmd::Scan, &[Want::One("- x")], None);
+    }
+
+    #[test]
+    fn scan_read_flag_token_with_a_space_is_a_value() {
+        assert_assigned(
+            &["plan", "--fixtures x"],
+            Cmd::Plan,
+            &[Want::One("--fixtures x")],
+            None,
+        );
+    }
+
+    /// ZH-63, family 3. A token with no first point at all
+    /// reads as positional.
+
+    #[test]
+    fn scan_read_empty_token_is_a_value() {
+        assert_assigned(&["scan", ""], Cmd::Scan, &[Want::One("")], None);
+    }
+
+    /// ZH-63, family 4. The fixtures flag in its standing
+    /// and joined forms, exact and abbreviated, takes its
+    /// value, and the plan assigns the estate form on the
+    /// one share that stands.
+
+    #[test]
+    fn scan_flag_standing_takes_the_next_token() {
+        assert_assigned(
+            &["plan", "snap", "--fixtures", "dir"],
+            Cmd::Plan,
+            &[Want::One("snap")],
+            Some("dir"),
+        );
+    }
+
+    #[test]
+    fn scan_flag_joined_carries_its_value() {
+        assert_assigned(
+            &["plan", "snap", "--fixtures=dir"],
+            Cmd::Plan,
+            &[Want::One("snap")],
+            Some("dir"),
+        );
+    }
+
+    #[test]
+    fn scan_flag_standing_abbreviation_takes_the_next_token() {
+        assert_assigned(
+            &["plan", "snap", "--fi", "dir"],
+            Cmd::Plan,
+            &[Want::One("snap")],
+            Some("dir"),
+        );
+    }
+
+    #[test]
+    fn scan_flag_joined_abbreviation_carries_its_value() {
+        assert_assigned(
+            &["plan", "snap", "--f=dir"],
+            Cmd::Plan,
+            &[Want::One("snap")],
+            Some("dir"),
+        );
+    }
+
+    /// ZH-63, family 4. The empty joined value is a value,
+    /// and a joined value runs from the first equals sign.
+
+    #[test]
+    fn scan_flag_joined_empty_value_is_a_value() {
+        assert_assigned(
+            &["plan", "snap", "--fixtures="],
+            Cmd::Plan,
+            &[Want::One("snap")],
+            Some(""),
+        );
+    }
+
+    #[test]
+    fn scan_flag_joined_value_runs_from_the_first_equals() {
+        assert_assigned(
+            &["plan", "snap", "--fixtures=a=b"],
+            Cmd::Plan,
+            &[Want::One("snap")],
+            Some("a=b"),
+        );
+    }
+
+    /// ZH-63, family 4. The pending arm takes the next token
+    /// when the classification read calls it positional, a
+    /// negative number among them.
+
+    #[test]
+    fn scan_flag_value_may_be_a_negative_number() {
+        assert_assigned(
+            &["plan", "snap", "--fixtures", "-2.5"],
+            Cmd::Plan,
+            &[Want::One("snap")],
+            Some("-2.5"),
+        );
+    }
+
+    /// ZH-63, family 4. The flag standing at the end of the
+    /// stream leaves the walk pending, and the raw stream
+    /// hands over as written.
+
+    #[test]
+    fn scan_flag_standing_at_the_end_hands_over() {
+        assert_run(
+            &["plan", "snap", "--fixtures"],
+            &["plan", "snap", "--fixtures"],
+        );
+    }
+
+    /// ZH-63, family 4. Any token the classification read
+    /// does not call positional blocks the pending arm, an
+    /// option, a help token of either spelling, the
+    /// separator, and the flag itself among them, and help
+    /// does not fire behind a pending flag.
+
+    #[test]
+    fn scan_flag_pending_blocks_on_an_option() {
+        assert_run(
+            &["plan", "snap", "--fixtures", "--bogus"],
+            &["plan", "snap", "--fixtures", "--bogus"],
+        );
+    }
+
+    #[test]
+    fn scan_flag_pending_blocks_on_the_short_help_token() {
+        assert_run(
+            &["plan", "snap", "--fixtures", "-h"],
+            &["plan", "snap", "--fixtures", "-h"],
+        );
+    }
+
+    #[test]
+    fn scan_flag_pending_blocks_on_the_long_help_token() {
+        assert_run(
+            &["plan", "snap", "--fixtures", "--help"],
+            &["plan", "snap", "--fixtures", "--help"],
+        );
+    }
+
+    #[test]
+    fn scan_flag_pending_blocks_on_the_separator() {
+        assert_run(
+            &["plan", "snap", "--fixtures", "--"],
+            &["plan", "snap", "--fixtures", "--"],
+        );
+    }
+
+    #[test]
+    fn scan_flag_pending_blocks_on_the_flag_itself() {
+        assert_run(
+            &["plan", "snap", "--fixtures", "--fixtures"],
+            &["plan", "snap", "--fixtures", "--fixtures"],
+        );
+    }
+
+    /// ZH-63, family 4. Where the flag repeats, the last
+    /// value wins.
+
+    #[test]
+    fn scan_flag_last_value_wins() {
+        assert_assigned(
+            &["plan", "snap", "--fixtures", "a", "--fixtures", "b"],
+            Cmd::Plan,
+            &[Want::One("snap")],
+            Some("b"),
+        );
+    }
+
+    /// ZH-63, family 4. A repeated flag removes its first
+    /// token from the gathered stream, even from mid stream,
+    /// and the removal stands visible where the gathered
+    /// stream hands over.
+
+    #[test]
+    fn scan_flag_repeat_removes_the_first_token_from_the_gathered_stream() {
+        assert_run(
+            &[
+                "plan",
+                "--fixtures",
+                "a",
+                "--bogus",
+                "--fixtures",
+                "b",
+                "snap",
+            ],
+            &["plan", "--bogus", "--fixtures=b", "--", "snap"],
+        );
+    }
+
+    /// ZH-63, family 4. A subcommand carrying no value flag
+    /// reads the flag token as an unknown option.
+
+    #[test]
+    fn scan_flag_table_of_scan_is_empty() {
+        assert_run(
+            &["scan", "--fixtures", "dir"],
+            &["scan", "--fixtures", "--", "dir"],
+        );
+    }
+
+    /// ZH-63, family 4. A consumed flag ends its segment,
+    /// and the shares on either side of it fill the slots in
+    /// order, the single form of the plan.
+
+    #[test]
+    fn scan_flag_ends_the_segment_and_the_shares_fill_across() {
+        assert_assigned(
+            &["plan", "a", "--fixtures=x", "b"],
+            Cmd::Plan,
+            &[Want::One("a"), Want::One("b")],
+            Some("x"),
+        );
+    }
+
+    #[test]
+    fn scan_flag_standing_ahead_of_both_shares() {
+        assert_assigned(
+            &["plan", "--fixtures", "dir", "snap", "entry"],
+            Cmd::Plan,
+            &[Want::One("snap"), Want::One("entry")],
+            Some("dir"),
+        );
+    }
+
+    /// ZH-63, family 5. Recognition at the root is byte
+    /// equality against the subcommand names, and a word
+    /// that does not name one blocks the walk there.
+
+    #[test]
+    fn scan_root_names_do_not_abbreviate() {
+        assert_run(&["sca", "snap"], &["sca", "snap"]);
+    }
+
+    #[test]
+    fn scan_root_name_in_another_case_does_not_select() {
+        assert_run(&["Scan", "snap"], &["Scan", "snap"]);
+    }
+
+    #[test]
+    fn scan_root_name_with_a_trailing_space_does_not_select() {
+        assert_run(&["scan "], &["scan "]);
+    }
+
+    /// ZH-63, family 5. With no subcommand selected and
+    /// nothing gathered, the walk hands over the empty
+    /// stream.
+
+    #[test]
+    fn scan_root_empty_stream_hands_over_empty() {
+        assert_run(&[], &[]);
+    }
+
+    /// ZH-63, family 5. A root option the walk cannot assign
+    /// is gathered, and with no subcommand the gathered
+    /// stream hands over.
+
+    #[test]
+    fn scan_root_option_is_gathered() {
+        assert_run(&["--bogus"], &["--bogus"]);
+    }
+
+    #[test]
+    fn scan_root_unknown_short_is_gathered() {
+        assert_run(&["-x"], &["-x"]);
+    }
+
+    /// ZH-63, family 5. Help fires at the root though an
+    /// unknown option stands gathered ahead of it.
+
+    #[test]
+    fn scan_root_help_fires_behind_a_gathered_option() {
+        assert_fire_help(&["--bogus", "-h"], None);
+    }
+
+    /// ZH-63, family 5. The separator at the root blocks,
+    /// no subcommand standing selected to receive it, and a
+    /// blocked walk hands over the raw stream as written.
+
+    #[test]
+    fn scan_root_separator_blocks() {
+        assert_run(&["--"], &["--"]);
+    }
+
+    #[test]
+    fn scan_root_blocked_stream_is_the_raw_stream() {
+        assert_run(&["--bogus", "--"], &["--bogus", "--"]);
+    }
+
+    #[test]
+    fn scan_root_positional_blocks_the_whole_stream() {
+        assert_run(&["junk", "scan", "snap"], &["junk", "scan", "snap"]);
+    }
+
+    /// ZH-63, family 5. A subcommand selected but
+    /// undistributed hands over the gathered stream alone,
+    /// no separator joining it, every segment standing
+    /// empty.
+
+    #[test]
+    fn scan_root_subcommand_alone_hands_over_gathered() {
+        assert_run(&["scan"], &["scan"]);
+    }
+
+    /// ZH-63, family 5. A subcommand word behind a
+    /// subcommand is a plain value like any other word.
+
+    #[test]
+    fn scan_root_subcommand_word_behind_a_subcommand_is_a_value() {
+        assert_assigned(&["scan", "plan"], Cmd::Scan, &[Want::One("plan")], None);
+    }
+
+    /// ZH-63, family 6. Within a segment the first separator
+    /// is discounted into the share of the value just before
+    /// it, or the first share when it leads, and each share
+    /// gives up its first separator.
+
+    #[test]
+    fn scan_separator_leading_is_discounted() {
+        assert_assigned(
+            &["scan", "--", "snap"],
+            Cmd::Scan,
+            &[Want::One("snap")],
+            None,
+        );
+    }
+
+    #[test]
+    fn scan_separator_trailing_joins_the_share() {
+        assert_assigned(
+            &["scan", "snap", "--"],
+            Cmd::Scan,
+            &[Want::One("snap")],
+            None,
+        );
+    }
+
+    #[test]
+    fn scan_separator_joins_the_share_before_it() {
+        assert_assigned(
+            &["observe", "a", "--", "b", "c"],
+            Cmd::Observe,
+            &[Want::One("a"), Want::One("b"), Want::One("c")],
+            None,
+        );
+    }
+
+    /// ZH-63, family 6. Of two separators in one segment the
+    /// first is discounted and given up, and the second
+    /// stands as the share's one token.
+
+    #[test]
+    fn scan_separator_second_of_two_stands_as_the_value() {
+        assert_assigned(&["scan", "--", "--"], Cmd::Scan, &[Want::One("--")], None);
+    }
+
+    #[test]
+    fn scan_separator_leading_pair_stands_as_the_value() {
+        assert_assigned(
+            &["observe", "--", "--", "a", "b"],
+            Cmd::Observe,
+            &[Want::One("--"), Want::One("a"), Want::One("b")],
+            None,
+        );
+    }
+
+    /// ZH-63, family 6. A share that does not end holding
+    /// exactly one token holds a list, here a lone later
+    /// separator whose share gives it up and ends empty.
+
+    #[test]
+    fn scan_separator_lone_later_separator_holds_a_list() {
+        assert_assigned(
+            &["observe", "a", "--", "--", "b"],
+            Cmd::Observe,
+            &[Want::One("a"), Want::Listed, Want::One("b")],
+            None,
+        );
+    }
+
+    #[test]
+    fn scan_separator_list_in_the_entry_share() {
+        assert_assigned(
+            &["plan", "--", "a", "--"],
+            Cmd::Plan,
+            &[Want::One("a"), Want::Listed],
+            None,
+        );
+    }
+
+    /// ZH-63, family 6. A trailing separator that closes a
+    /// segment holding no positional, once a flag has been
+    /// consumed, refuses the distribution in both of the
+    /// plan's readings, and the handed over stream flattens
+    /// the segments behind one separator.
+
+    #[test]
+    fn scan_separator_trailing_after_a_joined_flag_is_vetoed() {
+        assert_run(
+            &["plan", "snap", "--fixtures=x", "--"],
+            &["plan", "--fixtures=x", "--", "snap", "--"],
+        );
+    }
+
+    #[test]
+    fn scan_separator_trailing_after_a_standing_flag_is_vetoed() {
+        assert_run(
+            &["plan", "snap", "--fixtures", "dir", "--"],
+            &["plan", "--fixtures=dir", "--", "snap", "--"],
+        );
+    }
+
+    /// ZH-63, family 6. The separator leading a segment that
+    /// holds a value is discounted into that value's share,
+    /// and the veto does not stand.
+
+    #[test]
+    fn scan_separator_leading_the_post_flag_segment_is_discounted() {
+        assert_assigned(
+            &["plan", "a", "--fixtures=x", "--", "b"],
+            Cmd::Plan,
+            &[Want::One("a"), Want::One("b")],
+            Some("x"),
+        );
+    }
+
+    #[test]
+    fn scan_separator_in_a_value_segment_vetoes_nothing() {
+        assert_assigned(
+            &["plan", "--fixtures", "dir", "snap", "--"],
+            Cmd::Plan,
+            &[Want::One("snap")],
+            Some("dir"),
+        );
+    }
+
+    /// ZH-63, family 6. Where the distribution fails on the
+    /// share count, the handed over stream appends one
+    /// separator and the flattened segments to the gathered
+    /// stream.
+
+    #[test]
+    fn scan_distribution_too_few_shares_hands_over() {
+        assert_run(&["observe", "a", "b"], &["observe", "--", "a", "b"]);
+    }
+
+    #[test]
+    fn scan_distribution_too_many_shares_hands_over() {
+        assert_run(&["scan", "a", "b"], &["scan", "--", "a", "b"]);
+    }
+
+    /// ZH-63, family 6. In the separated state every later
+    /// token is a value, a help token and a flag token among
+    /// them, never a flag.
+
+    #[test]
+    fn scan_separator_help_after_it_is_a_value() {
+        assert_run(
+            &["scan", "snap", "--", "-h"],
+            &["scan", "--", "snap", "--", "-h"],
+        );
+    }
+
+    #[test]
+    fn scan_separator_flag_after_it_is_a_value() {
+        assert_run(
+            &["scan", "snap", "--", "--fixtures"],
+            &["scan", "--", "snap", "--", "--fixtures"],
+        );
+    }
+
+    /// ZH-63, family 6. The blocked arm runs ahead of the
+    /// separator token, so a walk blocked by a refused help
+    /// token records no separator and hands the raw stream
+    /// over.
+
+    #[test]
+    fn scan_separator_blocked_arm_runs_ahead_of_it() {
+        assert_run(&["scan", "--help=x", "--"], &["scan", "--help=x", "--"]);
+    }
 }
