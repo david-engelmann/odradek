@@ -115,7 +115,7 @@ Every command reads only the files it is handed and writes nothing to any file. 
 
 ## Status
 
-The tool is complete at the surface its contract describes, with no stubbed or held back part, and the full CI gate runs on every change. Round 11 landed in PR 25, indexing the by identifier lookups in the scan and the observe so each operation builds one index and reads its resolutions through it. Round 12 landed in PR 27, pinning the argument scanner's branches by direct unit tests so the walk's answers stand guarded at the branch level. Closed rounds 12 of 100.
+The tool is complete at the surface its contract describes, with no stubbed or held back part, and the full CI gate runs on every change. Round 11 landed in PR 25, indexing the by identifier lookups in the scan and the observe so each operation builds one index and reads its resolutions through it. Round 12 landed in PR 27, pinning the argument scanner's branches by direct unit tests so the walk's answers stand guarded at the branch level. Round 13 landed in PR 29, firing the observe command behind its states in the corpus with nine new cases over the branches the census found unfired. Closed rounds 13 of 100.
 
 ## License
 
