@@ -24,7 +24,9 @@ fn the_corpus_runs_and_its_split_is_pinned() {
     // short help spelling behind each subcommand (ZH-55).
     // Round 13 adds nine oracle cases firing the observe
     // branches the ZH-66 census marked unfired (ZH-67).
-    assert_eq!((oracle, clap), (43, 27), "corpus source split");
+    // Round 14 adds seventeen oracle cases firing the snapshot
+    // reader's refusal families behind scan and plan (ZH-71).
+    assert_eq!((oracle, clap), (60, 27), "corpus source split");
     let mut failures = Vec::new();
     for case in &cases {
         if let Err(detail) = run_corpus_case(case) {
