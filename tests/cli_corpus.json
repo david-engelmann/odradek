@@ -2055,6 +2055,146 @@
     "stdout": "",
     "stderr": "error: fixture x.json response probabilities do not add up to 1\n"
    }
+  },
+  {
+   "name": "fixture-rule-outcome-owner",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fx2/x.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"maybe\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"score\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fx2"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: fixture x.json request field 'owner' names an outcome that is not satisfied, contradicted, or unknown\n"
+   }
+  },
+  {
+   "name": "fixture-rule-evidence-owner",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fx2/x.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"score\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fx2"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: fixture x.json request field 'owner' evidence is not a non-empty string\n"
+   }
+  },
+  {
+   "name": "fixture-rule-fields-in-flight",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fx2/x.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\",\n      \"zz\": 1\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"score\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fx2"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: fixture x.json request field 'in-flight' does not carry exactly the fields outcome and evidence\n"
+   }
+  },
+  {
+   "name": "fixture-rule-not-object-in-flight",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fx2/x.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": \"satisfied\",\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"score\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fx2"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: fixture x.json request field 'in-flight' does not carry exactly the fields outcome and evidence\n"
+   }
+  },
+  {
+   "name": "fixture-rule-outcome-in-flight",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fx2/x.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"maybe\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"score\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fx2"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: fixture x.json request field 'in-flight' names an outcome that is not satisfied, contradicted, or unknown\n"
+   }
+  },
+  {
+   "name": "fixture-rule-evidence-in-flight",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fx2/x.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"score\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fx2"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: fixture x.json request field 'in-flight' evidence is not a non-empty string\n"
+   }
+  },
+  {
+   "name": "fixture-response-kind-missing",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fx2/x.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fx2"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: fixture x.json response kind None does not answer the kill call, which takes a choice or an abstention\n"
+   }
   }
  ]
 }
