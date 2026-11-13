@@ -2608,6 +2608,102 @@
     "stdout": "",
     "stderr": "odradek: a computed count exceeded the integer digit limit\n"
    }
+  },
+  {
+   "name": "scan-snapshot-comments-and-blanks",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "# cluster export\n\nsnapshot 100000\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\n# the zombie\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\n   \n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 0 suspect 0 proven 1 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-snapshot-header-three-parts",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000 extra\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the first line 'snapshot 100000 extra' is not a snapshot header naming the snapshot time\n"
+   }
+  },
+  {
+   "name": "scan-snapshot-entry-no-identifier",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the line 'entry' does not open an entry with exactly one identifier\n"
+   }
+  },
+  {
+   "name": "scan-snapshot-field-three-parts",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running now\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the line 'state running now' in the entry stale-1 matches no field form\n"
+   }
+  },
+  {
+   "name": "scan-snapshot-owner-line-twice",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nowner done-run\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the entry stale-1 carries the owner line twice\n"
+   }
+  },
+  {
+   "name": "scan-snapshot-no-starter-line",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the entry stale-1 carries no starter line\n"
+   }
   }
  ]
 }
