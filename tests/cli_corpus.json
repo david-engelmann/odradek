@@ -2314,7 +2314,7 @@
    "name": "scan-listed-rank-then-id-order",
    "source": "oracle",
    "setup": {
-    "snap.txt": "snapshot 10000\nentry sus-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds none\nowner none\nentry zom-b\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds none\nowner ghost-1\nentry zom-a\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds none\nowner ghost-1\n"
+    "snap.txt": "snapshot 10000\nentry sus-b\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds none\nowner none\nentry zom-b\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds none\nowner ghost-1\nentry sus-a\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds none\nowner none\nentry zom-a\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds none\nowner ghost-1\n"
    },
    "argv": [
     "scan",
@@ -2322,7 +2322,7 @@
    ],
    "expect": {
     "code": 0,
-    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 2 settled 0\nzombie zom-a\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-1 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nzombie zom-b\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-1 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect sus-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stdout": "snapshot 10000\ncounts live 0 suspect 2 proven 2 settled 0\nzombie zom-a\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-1 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nzombie zom-b\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-1 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect sus-a\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect sus-b\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
     "stderr": ""
    }
   },
