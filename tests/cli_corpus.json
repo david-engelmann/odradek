@@ -2309,6 +2309,102 @@
     "stdout": "",
     "stderr": "error: an observation for ghost-9 is refused, no entry in early.txt carries that identifier, and an observation is written only for a proven zombie in the earlier snapshot\n"
    }
+  },
+  {
+   "name": "scan-listed-rank-then-id-order",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry sus-b\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds none\nowner none\nentry zom-b\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds none\nowner ghost-1\nentry sus-a\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds none\nowner none\nentry zom-a\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds none\nowner ghost-1\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 2 proven 2 settled 0\nzombie zom-a\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-1 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nzombie zom-b\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-1 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect sus-a\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect sus-b\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-signal-age-at-threshold",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry edge-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 100\nlast-signal 9700\nholds none\nowner ghost-1\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 0 proven 1 settled 0\nzombie edge-1\n  evidence for signal age 300 seconds reaches the proof threshold of 300 seconds\n  evidence for owner ghost-1 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-signal-age-at-interval-not-live",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry edge-2\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 100\nlast-signal 9900\nholds none\nowner none\nentry edge-3\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 100\nlast-signal 9901\nholds none\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 1 suspect 1 proven 0 settled 0\nsuspect edge-2\n  evidence against signal age 100 seconds is under the proof threshold of 300 seconds\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-owner-self-reference",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry loop-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds none\nowner loop-1\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect loop-1\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence against owner loop-1 is recorded running\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-nothing-listed-counts-move",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9990\nholds none\nowner none\nentry done-1\nkind process\nstarter scheduler-1\nstate finished\nsignal-interval 60\nlast-signal 9000\nholds none\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 1 suspect 0 proven 0 settled 1\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-holds-sorted-in-satisfied-fact",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry held-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds zeta,alpha\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
   }
  ]
 }
