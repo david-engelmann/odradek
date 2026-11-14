@@ -2704,6 +2704,103 @@
     "stdout": "",
     "stderr": "error: snap.txt is malformed, the entry stale-1 carries no starter line\n"
    }
+  },
+  {
+   "name": "scan-listed-mixed-case-ids",
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry bravo\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal none\nholds none\nowner none\nentry Alpha\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal none\nholds none\nowner none\n"
+   },
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 0 suspect 2 proven 0 settled 0\nsuspect Alpha\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect bravo\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-listed-digit-and-letter-ids",
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry x9\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal none\nholds none\nowner none\nentry x10\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal none\nholds none\nowner none\n"
+   },
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 0 suspect 2 proven 0 settled 0\nsuspect x10\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect x9\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-listed-unicode-id",
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry éclair\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal none\nholds none\nowner none\nentry zulu\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal none\nholds none\nowner none\n"
+   },
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 0 suspect 2 proven 0 settled 0\nsuspect zulu\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect éclair\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-holds-sort-order",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry stale-1\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 100\nlast-signal 90000\nholds zebra,Alpha,10x\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect stale-1\n  evidence for signal age 10000 seconds reaches the proof threshold of 300 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds 10x, Alpha, zebra with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-holds-sort-with-marker",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry stale-1\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 100\nlast-signal 90000\nholds zebra,in-flight,Alpha\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect stale-1\n  evidence for signal age 10000 seconds reaches the proof threshold of 300 seconds\n  missing no owner reference is recorded for this entry\n  evidence against holds Alpha, in-flight, zebra including the in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-step2-holds-sorted",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 100\nlast-signal 90000\nholds zebra,Alpha,10x\nowner done-run\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 10000 seconds reaches the proof threshold of 300 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds 10x, Alpha, zebra with no in-flight marker\nstep 1 reversible, detach stale-1 from supervisor-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, 10x, Alpha, zebra, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1000 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
   }
  ]
 }
