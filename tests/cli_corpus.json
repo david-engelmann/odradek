@@ -3109,6 +3109,106 @@
     "stdout": "snapshot 10000\ncounts live 0 suspect 0 proven 1 settled 1\nzombie proof-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner done-2 is recorded finished\n  evidence for the entry holds nothing and carries no in-flight marker\n",
     "stderr": ""
    }
+  },
+  {
+   "name": "plan-estate-order-reversed",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry zeta-9\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry alpha-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "estate quarantine plan\nquarantine plan for alpha-1\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach alpha-1 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from alpha-1\nobservation window 600 seconds\nescalation, if alpha-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nquarantine plan for zeta-9\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach zeta-9 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from zeta-9\nobservation window 600 seconds\nescalation, if zeta-9 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-estate-order-three-shuffled",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry mike-3\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry busy-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99995\nholds none\nowner ghost-7\nentry anna-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry zack-9\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "estate quarantine plan\nquarantine plan for anna-1\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach anna-1 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from anna-1\nobservation window 600 seconds\nescalation, if anna-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nquarantine plan for mike-3\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach mike-3 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from mike-3\nobservation window 600 seconds\nescalation, if mike-3 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nquarantine plan for zack-9\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach zack-9 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from zack-9\nobservation window 600 seconds\nescalation, if zack-9 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-estate-order-text",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry x9\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry x10\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "estate quarantine plan\nquarantine plan for x10\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach x10 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from x10\nobservation window 600 seconds\nescalation, if x10 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nquarantine plan for x9\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach x9 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from x9\nobservation window 600 seconds\nescalation, if x9 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-estate-unproven-window-unchecked",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry vast-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\nlast-signal 99999\nholds none\nowner ghost-7\nentry alpha-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "estate quarantine plan\nquarantine plan for alpha-1\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach alpha-1 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from alpha-1\nobservation window 600 seconds\nescalation, if alpha-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-estate-verdicts-follow-blocks",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry zeta-9\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry alpha-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\n",
+    "fixtures/kill-alpha.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"alpha-1\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"watch\",\n    \"confidence\": 0.8,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.1,\n      \"spare\": 0.1,\n      \"watch\": 0.8\n    }\n  },\n  \"synthetic\": true\n}\n",
+    "fixtures/kill-zeta.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"zeta-9\",\n    \"in-flight\": {\n      \"evidence\": \"the entry holds nothing and carries no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner ghost-7 is absent from the snapshot\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 1000 seconds reaches the proof threshold of 180 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "estate quarantine plan\nquarantine plan for alpha-1\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach alpha-1 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from alpha-1\nobservation window 600 seconds\nescalation, if alpha-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict watch with confidence 0.8\nverdict leaves this plan unadvanced, no action follows from this answer, and the plan stands as written for an operator to read\nexecutes nothing, this plan is a document and the tool performs no part of it\nquarantine plan for zeta-9\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach zeta-9 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from zeta-9\nobservation window 600 seconds\nescalation, if zeta-9 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-estate-holds-across-blocks",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry zeta-9\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds cache,queue-token\nowner ghost-7\nentry alpha-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "estate quarantine plan\nquarantine plan for alpha-1\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach alpha-1 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from alpha-1\nobservation window 600 seconds\nescalation, if alpha-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nquarantine plan for zeta-9\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for holds cache, queue-token with no in-flight marker\nstep 1 reversible, detach zeta-9 from cron-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, queue-token, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from zeta-9\nobservation window 600 seconds\nescalation, if zeta-9 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
   }
  ]
 }
