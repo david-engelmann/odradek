@@ -3013,6 +3013,102 @@
     "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
     "stderr": ""
    }
+  },
+  {
+   "name": "scan-proven-absent-owner",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry proof-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds ledger-token\nowner ghost-9\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 0 proven 1 settled 0\nzombie proof-1\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-9 is absent from the snapshot\n  evidence for holds ledger-token with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-suspect-no-signal",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal none\nholds none\nowner done-1\n\nentry done-1\nkind process\nstarter scheduler-1\nstate finished\nsignal-interval 60\nlast-signal 9000\nholds none\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 1\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  evidence for owner done-1 is recorded finished\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-settled-over-live",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry fin-1\nkind process\nstarter scheduler-1\nstate finished\nsignal-interval 60\nlast-signal 9999\nholds in-flight\nowner run-1\n\nentry run-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds none\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 1\nsuspect run-1\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-owner-one-hop",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry hop-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds none\nowner mid-1\n\nentry mid-1\nkind process\nstarter scheduler-1\nstate finished\nsignal-interval 60\nlast-signal 9000\nholds none\nowner top-1\n\nentry top-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds in-flight\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 1 settled 1\nzombie hop-1\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner mid-1 is recorded finished\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect top-1\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence against holds in-flight including the in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-live-with-contradictions",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9970\nholds in-flight\nowner boss-1\n\nentry boss-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds none\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 1 suspect 1 proven 0 settled 0\nsuspect boss-1\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-proven-plain-facts",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry proof-2\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9000\nholds none\nowner done-2\n\nentry done-2\nkind process\nstarter scheduler-1\nstate finished\nsignal-interval 60\nlast-signal 8000\nholds none\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 0 proven 1 settled 1\nzombie proof-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner done-2 is recorded finished\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
   }
  ]
 }
