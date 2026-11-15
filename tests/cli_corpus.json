@@ -3209,6 +3209,102 @@
     "stdout": "estate quarantine plan\nquarantine plan for alpha-1\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nstep 1 reversible, detach alpha-1 from cron-1 so no new work reaches it\nstep 2 reversible, record that the entry holds nothing, so no resource needs fencing while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from alpha-1\nobservation window 600 seconds\nescalation, if alpha-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nquarantine plan for zeta-9\nclassification proven zombie\nproof\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for holds cache, queue-token with no in-flight marker\nstep 1 reversible, detach zeta-9 from cron-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, queue-token, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from zeta-9\nobservation window 600 seconds\nescalation, if zeta-9 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
     "stderr": ""
    }
+  },
+  {
+   "name": "scan-entry-empty-block",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry empty-1\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the entry empty-1 carries no kind line\n"
+   }
+  },
+  {
+   "name": "scan-duplicate-after-incomplete",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the entry live-1 carries no owner line\n"
+   }
+  },
+  {
+   "name": "scan-entry-empty-at-end",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner none\nentry tail-1\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the entry tail-1 carries no kind line\n"
+   }
+  },
+  {
+   "name": "scan-bad-value-beats-missing-field",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind daemon\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nentry boss-run\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the entry live-1 names the kind 'daemon', which is neither process nor run\n"
+   }
+  },
+  {
+   "name": "scan-field-twice-bad-second",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nkind daemon\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the entry live-1 carries the kind line twice\n"
+   }
+  },
+  {
+   "name": "scan-entry-line-form-after-incomplete",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nentry boss-run extra\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the line 'entry boss-run extra' does not open an entry with exactly one identifier\n"
+   }
   }
  ]
 }
