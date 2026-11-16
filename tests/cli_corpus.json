@@ -3401,6 +3401,102 @@
     "stdout": "",
     "stderr": "error: snap.txt is malformed, the last signal of the entry live-1 value 'x' is not a whole number of seconds\n"
    }
+  },
+  {
+   "name": "scan-header-line-inside-entry",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsnapshot 200000\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the snapshot header appears more than once\n"
+   }
+  },
+  {
+   "name": "scan-bare-snapshot-line-in-body",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nsnapshot\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the snapshot header appears more than once\n"
+   }
+  },
+  {
+   "name": "scan-line-form-before-entry",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nkind process extra\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the line 'kind process extra' stands before any entry block\n"
+   }
+  },
+  {
+   "name": "scan-two-missing-fields-first-named",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the entry live-1 carries no starter line\n"
+   }
+  },
+  {
+   "name": "scan-field-form-before-twice",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nkind process extra\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the line 'kind process extra' in the entry live-1 matches no field form\n"
+   }
+  },
+  {
+   "name": "scan-header-time-before-body",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot abc\nentry\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 2,
+    "stdout": "",
+    "stderr": "error: snap.txt is malformed, the snapshot time value 'abc' is not a whole number of seconds\n"
+   }
   }
  ]
 }
