@@ -30,7 +30,9 @@ fn the_corpus_runs_and_its_split_is_pinned() {
     // command's refusal and read order pairings (ZH-139).
     // Round 32 adds six oracle cases firing the plan
     // command's stage order pairings (ZH-143).
-    assert_eq!((oracle, clap), (189, 27), "corpus source split");
+    // Round 33 adds six oracle cases firing the observe
+    // command's read stage order pairings (ZH-148).
+    assert_eq!((oracle, clap), (195, 27), "corpus source split");
     let mut failures = Vec::new();
     for case in &cases {
         if let Err(detail) = run_corpus_case(case) {
