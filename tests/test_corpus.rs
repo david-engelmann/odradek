@@ -44,7 +44,10 @@ fn the_corpus_runs_and_its_split_is_pinned() {
     // Round 39 adds six oracle cases firing the fixture
     // reader's repeated field readings behind the plan
     // command (ZH-177).
-    assert_eq!((oracle, clap), (232, 27), "corpus source split");
+    // Round 40 adds six oracle cases firing the fixture
+    // reader's written number forms behind the plan
+    // command (ZH-182).
+    assert_eq!((oracle, clap), (238, 27), "corpus source split");
     let mut failures = Vec::new();
     for case in &cases {
         if let Err(detail) = run_corpus_case(case) {
