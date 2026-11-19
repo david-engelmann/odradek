@@ -39,9 +39,9 @@ fn the_corpus_runs_and_its_split_is_pinned() {
     // Round 36 adds six oracle cases firing the fixture
     // player's answer edges and directory mechanics behind
     // the plan command (ZH-163).
-    // Round 37 adds six oracle cases firing the fixture
-    // player's match key behind the plan command (ZH-168).
-    assert_eq!((oracle, clap), (220, 27), "corpus source split");
+    // Round 38 adds six oracle cases firing the folded
+    // snapshot path forms behind plan and observe (ZH-172).
+    assert_eq!((oracle, clap), (226, 27), "corpus source split");
     let mut failures = Vec::new();
     for case in &cases {
         if let Err(detail) = run_corpus_case(case) {
