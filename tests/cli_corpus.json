@@ -4882,6 +4882,102 @@
     "stdout": "",
     "stderr": "error: fixture file is not valid JSON, fixtures/a.json\n"
    }
+  },
+  {
+   "name": "scan-whitespace-tab-separators",
+   "source": "oracle",
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "setup": {
+    "snap.txt": "snapshot\t10000\nentry\theld-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t9900\nholds\tzeta,alpha,zeta\nowner\tnone\n"
+   },
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-whitespace-crlf-lines",
+   "source": "oracle",
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "setup": {
+    "snap.txt": "snapshot 10000\r\nentry held-1\r\nkind process\r\nstarter scheduler-1\r\nstate running\r\nsignal-interval 60\r\nlast-signal 9900\r\nholds zeta,alpha,zeta\r\nowner none\r\n"
+   },
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-whitespace-nbsp-separator",
+   "source": "oracle",
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry held-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds zeta,alpha,zeta\nowner none\n"
+   },
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-whitespace-line-separator",
+   "source": "oracle",
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry held-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds zeta,alpha,zeta\nowner none\n"
+   },
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-whitespace-ideographic-padding",
+   "source": "oracle",
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "setup": {
+    "snap.txt": "　snapshot 10000　\n　entry held-1　\n　kind process　\n　starter scheduler-1　\n　state running　\n　signal-interval 60　\n　last-signal 9900　\n　holds zeta,alpha,zeta　\n　owner none　\n"
+   },
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-whitespace-em-space-separator",
+   "source": "oracle",
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry held-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds zeta,alpha,zeta\nowner none\n"
+   },
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
   }
  ]
 }
