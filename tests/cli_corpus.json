@@ -5098,6 +5098,126 @@
     "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
     "stderr": ""
    }
+  },
+  {
+   "name": "plan-whitespace-tab-separators",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot\t100000\nentry\tlive-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99980\nholds\tworkspace\nowner\tboss-run\nentry\tboss-run\nkind\trun\nstarter\tsupervisor-1\nstate\trunning\nsignal-interval\t30\nlast-signal\t99995\nholds\tnone\nowner\tnone\nentry\tdone-run\nkind\trun\nstarter\tsupervisor-1\nstate\tfinished\nsignal-interval\t300\nlast-signal\t90000\nholds\tnone\nowner\tnone\nentry\tstale-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t120\nlast-signal\t96400\nholds\tcache\nowner\tdone-run\nentry\tstale-2\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99000\nholds\tnone\nowner\tghost-7\nentry\tquiet-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t90\nlast-signal\tnone\nholds\tnone\nowner\tnone\nentry\tbusy-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99850\nholds\tin-flight,cache\nowner\tboss-run\nentry\thalf-1\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t300\nlast-signal\t95000\nholds\treports\nowner\tnone\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-whitespace-crlf-lines",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\r\nentry live-1\r\nkind process\r\nstarter scheduler-1\r\nstate running\r\nsignal-interval 60\r\nlast-signal 99980\r\nholds workspace\r\nowner boss-run\r\nentry boss-run\r\nkind run\r\nstarter supervisor-1\r\nstate running\r\nsignal-interval 30\r\nlast-signal 99995\r\nholds none\r\nowner none\r\nentry done-run\r\nkind run\r\nstarter supervisor-1\r\nstate finished\r\nsignal-interval 300\r\nlast-signal 90000\r\nholds none\r\nowner none\r\nentry stale-1\r\nkind process\r\nstarter scheduler-1\r\nstate running\r\nsignal-interval 120\r\nlast-signal 96400\r\nholds cache\r\nowner done-run\r\nentry stale-2\r\nkind process\r\nstarter cron-1\r\nstate running\r\nsignal-interval 60\r\nlast-signal 99000\r\nholds none\r\nowner ghost-7\r\nentry quiet-1\r\nkind process\r\nstarter scheduler-1\r\nstate running\r\nsignal-interval 90\r\nlast-signal none\r\nholds none\r\nowner none\r\nentry busy-1\r\nkind process\r\nstarter scheduler-1\r\nstate running\r\nsignal-interval 60\r\nlast-signal 99850\r\nholds in-flight,cache\r\nowner boss-run\r\nentry half-1\r\nkind process\r\nstarter cron-1\r\nstate running\r\nsignal-interval 300\r\nlast-signal 95000\r\nholds reports\r\nowner none\r\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-whitespace-nbsp-separator",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-whitespace-line-separator",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-whitespace-ideographic-padding",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "　snapshot 100000　\n　entry live-1　\n　kind process　\n　starter scheduler-1　\n　state running　\n　signal-interval 60　\n　last-signal 99980　\n　holds workspace　\n　owner boss-run　\n　entry boss-run　\n　kind run　\n　starter supervisor-1　\n　state running　\n　signal-interval 30　\n　last-signal 99995　\n　holds none　\n　owner none　\n　entry done-run　\n　kind run　\n　starter supervisor-1　\n　state finished　\n　signal-interval 300　\n　last-signal 90000　\n　holds none　\n　owner none　\n　entry stale-1　\n　kind process　\n　starter scheduler-1　\n　state running　\n　signal-interval 120　\n　last-signal 96400　\n　holds cache　\n　owner done-run　\n　entry stale-2　\n　kind process　\n　starter cron-1　\n　state running　\n　signal-interval 60　\n　last-signal 99000　\n　holds none　\n　owner ghost-7　\n　entry quiet-1　\n　kind process　\n　starter scheduler-1　\n　state running　\n　signal-interval 90　\n　last-signal none　\n　holds none　\n　owner none　\n　entry busy-1　\n　kind process　\n　starter scheduler-1　\n　state running　\n　signal-interval 60　\n　last-signal 99850　\n　holds in-flight,cache　\n　owner boss-run　\n　entry half-1　\n　kind process　\n　starter cron-1　\n　state running　\n　signal-interval 300　\n　last-signal 95000　\n　holds reports　\n　owner none　\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-whitespace-em-space-separator",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n",
+    "fixtures/kill-call-stale-1-quarantine.json": "{\n  \"judgment_point\": \"kill-call\",\n  \"request\": {\n    \"entry\": \"stale-1\",\n    \"in-flight\": {\n      \"evidence\": \"holds cache with no in-flight marker\",\n      \"outcome\": \"satisfied\"\n    },\n    \"owner\": {\n      \"evidence\": \"owner done-run is recorded finished\",\n      \"outcome\": \"satisfied\"\n    },\n    \"signal\": {\n      \"evidence\": \"signal age 3600 seconds reaches the proof threshold of 360 seconds\",\n      \"outcome\": \"satisfied\"\n    }\n  },\n  \"response\": {\n    \"choice\": \"quarantine\",\n    \"confidence\": 0.9,\n    \"kind\": \"choice\",\n    \"probabilities\": {\n      \"quarantine\": 0.9,\n      \"spare\": 0.03,\n      \"watch\": 0.07\n    }\n  },\n  \"synthetic\": true\n}\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1",
+    "--fixtures",
+    "fixtures"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
   }
  ]
 }
