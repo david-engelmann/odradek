@@ -5548,6 +5548,120 @@
     "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nkill call verdict quarantine with confidence 0.9\nverdict advances this plan, the plan is ready for an operator to approve, and the approval itself stays an operator decision the tool never takes\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
     "stderr": ""
    }
+  },
+  {
+   "name": "observe-whitespace-vertical-tab-separator",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\u000b100000\nentry\u000blive-1\nkind\u000bprocess\nstarter\u000bscheduler-1\nstate\u000brunning\nsignal-interval\u000b60\nlast-signal\u000b99980\nholds\u000bworkspace\nowner\u000bboss-run\nentry\u000bboss-run\nkind\u000brun\nstarter\u000bsupervisor-1\nstate\u000brunning\nsignal-interval\u000b30\nlast-signal\u000b99995\nholds\u000bnone\nowner\u000bnone\nentry\u000bdone-run\nkind\u000brun\nstarter\u000bsupervisor-1\nstate\u000bfinished\nsignal-interval\u000b300\nlast-signal\u000b90000\nholds\u000bnone\nowner\u000bnone\nentry\u000bstale-1\nkind\u000bprocess\nstarter\u000bscheduler-1\nstate\u000brunning\nsignal-interval\u000b120\nlast-signal\u000b96400\nholds\u000bcache\nowner\u000bdone-run\nentry\u000bstale-2\nkind\u000bprocess\nstarter\u000bcron-1\nstate\u000brunning\nsignal-interval\u000b60\nlast-signal\u000b99000\nholds\u000bnone\nowner\u000bghost-7\nentry\u000bquiet-1\nkind\u000bprocess\nstarter\u000bscheduler-1\nstate\u000brunning\nsignal-interval\u000b90\nlast-signal\u000bnone\nholds\u000bnone\nowner\u000bnone\nentry\u000bbusy-1\nkind\u000bprocess\nstarter\u000bscheduler-1\nstate\u000brunning\nsignal-interval\u000b60\nlast-signal\u000b99850\nholds\u000bin-flight,cache\nowner\u000bboss-run\nentry\u000bhalf-1\nkind\u000bprocess\nstarter\u000bcron-1\nstate\u000brunning\nsignal-interval\u000b300\nlast-signal\u000b95000\nholds\u000breports\nowner\u000bnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-whitespace-form-feed-separator",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\f100000\nentry\flive-1\nkind\fprocess\nstarter\fscheduler-1\nstate\frunning\nsignal-interval\f60\nlast-signal\f99980\nholds\fworkspace\nowner\fboss-run\nentry\fboss-run\nkind\frun\nstarter\fsupervisor-1\nstate\frunning\nsignal-interval\f30\nlast-signal\f99995\nholds\fnone\nowner\fnone\nentry\fdone-run\nkind\frun\nstarter\fsupervisor-1\nstate\ffinished\nsignal-interval\f300\nlast-signal\f90000\nholds\fnone\nowner\fnone\nentry\fstale-1\nkind\fprocess\nstarter\fscheduler-1\nstate\frunning\nsignal-interval\f120\nlast-signal\f96400\nholds\fcache\nowner\fdone-run\nentry\fstale-2\nkind\fprocess\nstarter\fcron-1\nstate\frunning\nsignal-interval\f60\nlast-signal\f99000\nholds\fnone\nowner\fghost-7\nentry\fquiet-1\nkind\fprocess\nstarter\fscheduler-1\nstate\frunning\nsignal-interval\f90\nlast-signal\fnone\nholds\fnone\nowner\fnone\nentry\fbusy-1\nkind\fprocess\nstarter\fscheduler-1\nstate\frunning\nsignal-interval\f60\nlast-signal\f99850\nholds\fin-flight,cache\nowner\fboss-run\nentry\fhalf-1\nkind\fprocess\nstarter\fcron-1\nstate\frunning\nsignal-interval\f300\nlast-signal\f95000\nholds\freports\nowner\fnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-whitespace-file-separator",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\u001c100000\nentry\u001clive-1\nkind\u001cprocess\nstarter\u001cscheduler-1\nstate\u001crunning\nsignal-interval\u001c60\nlast-signal\u001c99980\nholds\u001cworkspace\nowner\u001cboss-run\nentry\u001cboss-run\nkind\u001crun\nstarter\u001csupervisor-1\nstate\u001crunning\nsignal-interval\u001c30\nlast-signal\u001c99995\nholds\u001cnone\nowner\u001cnone\nentry\u001cdone-run\nkind\u001crun\nstarter\u001csupervisor-1\nstate\u001cfinished\nsignal-interval\u001c300\nlast-signal\u001c90000\nholds\u001cnone\nowner\u001cnone\nentry\u001cstale-1\nkind\u001cprocess\nstarter\u001cscheduler-1\nstate\u001crunning\nsignal-interval\u001c120\nlast-signal\u001c96400\nholds\u001ccache\nowner\u001cdone-run\nentry\u001cstale-2\nkind\u001cprocess\nstarter\u001ccron-1\nstate\u001crunning\nsignal-interval\u001c60\nlast-signal\u001c99000\nholds\u001cnone\nowner\u001cghost-7\nentry\u001cquiet-1\nkind\u001cprocess\nstarter\u001cscheduler-1\nstate\u001crunning\nsignal-interval\u001c90\nlast-signal\u001cnone\nholds\u001cnone\nowner\u001cnone\nentry\u001cbusy-1\nkind\u001cprocess\nstarter\u001cscheduler-1\nstate\u001crunning\nsignal-interval\u001c60\nlast-signal\u001c99850\nholds\u001cin-flight,cache\nowner\u001cboss-run\nentry\u001chalf-1\nkind\u001cprocess\nstarter\u001ccron-1\nstate\u001crunning\nsignal-interval\u001c300\nlast-signal\u001c95000\nholds\u001creports\nowner\u001cnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-whitespace-group-separator",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\u001d100000\nentry\u001dlive-1\nkind\u001dprocess\nstarter\u001dscheduler-1\nstate\u001drunning\nsignal-interval\u001d60\nlast-signal\u001d99980\nholds\u001dworkspace\nowner\u001dboss-run\nentry\u001dboss-run\nkind\u001drun\nstarter\u001dsupervisor-1\nstate\u001drunning\nsignal-interval\u001d30\nlast-signal\u001d99995\nholds\u001dnone\nowner\u001dnone\nentry\u001ddone-run\nkind\u001drun\nstarter\u001dsupervisor-1\nstate\u001dfinished\nsignal-interval\u001d300\nlast-signal\u001d90000\nholds\u001dnone\nowner\u001dnone\nentry\u001dstale-1\nkind\u001dprocess\nstarter\u001dscheduler-1\nstate\u001drunning\nsignal-interval\u001d120\nlast-signal\u001d96400\nholds\u001dcache\nowner\u001ddone-run\nentry\u001dstale-2\nkind\u001dprocess\nstarter\u001dcron-1\nstate\u001drunning\nsignal-interval\u001d60\nlast-signal\u001d99000\nholds\u001dnone\nowner\u001dghost-7\nentry\u001dquiet-1\nkind\u001dprocess\nstarter\u001dscheduler-1\nstate\u001drunning\nsignal-interval\u001d90\nlast-signal\u001dnone\nholds\u001dnone\nowner\u001dnone\nentry\u001dbusy-1\nkind\u001dprocess\nstarter\u001dscheduler-1\nstate\u001drunning\nsignal-interval\u001d60\nlast-signal\u001d99850\nholds\u001din-flight,cache\nowner\u001dboss-run\nentry\u001dhalf-1\nkind\u001dprocess\nstarter\u001dcron-1\nstate\u001drunning\nsignal-interval\u001d300\nlast-signal\u001d95000\nholds\u001dreports\nowner\u001dnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-whitespace-record-separator",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\u001e100000\nentry\u001elive-1\nkind\u001eprocess\nstarter\u001escheduler-1\nstate\u001erunning\nsignal-interval\u001e60\nlast-signal\u001e99980\nholds\u001eworkspace\nowner\u001eboss-run\nentry\u001eboss-run\nkind\u001erun\nstarter\u001esupervisor-1\nstate\u001erunning\nsignal-interval\u001e30\nlast-signal\u001e99995\nholds\u001enone\nowner\u001enone\nentry\u001edone-run\nkind\u001erun\nstarter\u001esupervisor-1\nstate\u001efinished\nsignal-interval\u001e300\nlast-signal\u001e90000\nholds\u001enone\nowner\u001enone\nentry\u001estale-1\nkind\u001eprocess\nstarter\u001escheduler-1\nstate\u001erunning\nsignal-interval\u001e120\nlast-signal\u001e96400\nholds\u001ecache\nowner\u001edone-run\nentry\u001estale-2\nkind\u001eprocess\nstarter\u001ecron-1\nstate\u001erunning\nsignal-interval\u001e60\nlast-signal\u001e99000\nholds\u001enone\nowner\u001eghost-7\nentry\u001equiet-1\nkind\u001eprocess\nstarter\u001escheduler-1\nstate\u001erunning\nsignal-interval\u001e90\nlast-signal\u001enone\nholds\u001enone\nowner\u001enone\nentry\u001ebusy-1\nkind\u001eprocess\nstarter\u001escheduler-1\nstate\u001erunning\nsignal-interval\u001e60\nlast-signal\u001e99850\nholds\u001ein-flight,cache\nowner\u001eboss-run\nentry\u001ehalf-1\nkind\u001eprocess\nstarter\u001ecron-1\nstate\u001erunning\nsignal-interval\u001e300\nlast-signal\u001e95000\nholds\u001ereports\nowner\u001enone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-whitespace-unit-separator",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\u001f100000\nentry\u001flive-1\nkind\u001fprocess\nstarter\u001fscheduler-1\nstate\u001frunning\nsignal-interval\u001f60\nlast-signal\u001f99980\nholds\u001fworkspace\nowner\u001fboss-run\nentry\u001fboss-run\nkind\u001frun\nstarter\u001fsupervisor-1\nstate\u001frunning\nsignal-interval\u001f30\nlast-signal\u001f99995\nholds\u001fnone\nowner\u001fnone\nentry\u001fdone-run\nkind\u001frun\nstarter\u001fsupervisor-1\nstate\u001ffinished\nsignal-interval\u001f300\nlast-signal\u001f90000\nholds\u001fnone\nowner\u001fnone\nentry\u001fstale-1\nkind\u001fprocess\nstarter\u001fscheduler-1\nstate\u001frunning\nsignal-interval\u001f120\nlast-signal\u001f96400\nholds\u001fcache\nowner\u001fdone-run\nentry\u001fstale-2\nkind\u001fprocess\nstarter\u001fcron-1\nstate\u001frunning\nsignal-interval\u001f60\nlast-signal\u001f99000\nholds\u001fnone\nowner\u001fghost-7\nentry\u001fquiet-1\nkind\u001fprocess\nstarter\u001fscheduler-1\nstate\u001frunning\nsignal-interval\u001f90\nlast-signal\u001fnone\nholds\u001fnone\nowner\u001fnone\nentry\u001fbusy-1\nkind\u001fprocess\nstarter\u001fscheduler-1\nstate\u001frunning\nsignal-interval\u001f60\nlast-signal\u001f99850\nholds\u001fin-flight,cache\nowner\u001fboss-run\nentry\u001fhalf-1\nkind\u001fprocess\nstarter\u001fcron-1\nstate\u001frunning\nsignal-interval\u001f300\nlast-signal\u001f95000\nholds\u001freports\nowner\u001fnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
   }
  ]
 }
