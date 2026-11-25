@@ -5662,6 +5662,102 @@
     "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
     "stderr": ""
    }
+  },
+  {
+   "name": "scan-whitespace-en-quad-separator",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry held-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds zeta,alpha,zeta\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-whitespace-em-quad-separator",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry held-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds zeta,alpha,zeta\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-whitespace-en-space-separator",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry held-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds zeta,alpha,zeta\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-whitespace-three-per-em-separator",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry held-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds zeta,alpha,zeta\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-whitespace-four-per-em-separator",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry held-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds zeta,alpha,zeta\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-whitespace-six-per-em-separator",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry held-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 9900\nholds zeta,alpha,zeta\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 1 proven 0 settled 0\nsuspect held-1\n  evidence against signal age 100 seconds is under the proof threshold of 180 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds alpha, zeta with no in-flight marker\n",
+    "stderr": ""
+   }
   }
  ]
 }
