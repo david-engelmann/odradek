@@ -7720,6 +7720,177 @@
     "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
     "stderr": ""
    }
+  },
+  {
+   "name": "observe-digits-nko-zero",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\t1߀߀߀߀߀\nentry\tlive-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t6߀\nlast-signal\t9998߀\nholds\tworkspace\nowner\tboss-run\nentry\tboss-run\nkind\trun\nstarter\tsupervisor-1\nstate\trunning\nsignal-interval\t3߀\nlast-signal\t99995\nholds\tnone\nowner\tnone\nentry\tdone-run\nkind\trun\nstarter\tsupervisor-1\nstate\tfinished\nsignal-interval\t3߀߀\nlast-signal\t9߀߀߀߀\nholds\tnone\nowner\tnone\nentry\tstale-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t12߀\nlast-signal\t964߀߀\nholds\tcache\nowner\tdone-run\nentry\tstale-2\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t6߀\nlast-signal\t99߀߀߀\nholds\tnone\nowner\tghost-7\nentry\tquiet-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t9߀\nlast-signal\tnone\nholds\tnone\nowner\tnone\nentry\tbusy-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t6߀\nlast-signal\t9985߀\nholds\tin-flight,cache\nowner\tboss-run\nentry\thalf-1\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t3߀߀\nlast-signal\t95߀߀߀\nholds\treports\nowner\tnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-digits-nko-one",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\t߁00000\nentry\tlive-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99980\nholds\tworkspace\nowner\tboss-run\nentry\tboss-run\nkind\trun\nstarter\tsupervisor-1\nstate\trunning\nsignal-interval\t30\nlast-signal\t99995\nholds\tnone\nowner\tnone\nentry\tdone-run\nkind\trun\nstarter\tsupervisor-1\nstate\tfinished\nsignal-interval\t300\nlast-signal\t90000\nholds\tnone\nowner\tnone\nentry\tstale-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t߁20\nlast-signal\t96400\nholds\tcache\nowner\tdone-run\nentry\tstale-2\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99000\nholds\tnone\nowner\tghost-7\nentry\tquiet-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t90\nlast-signal\tnone\nholds\tnone\nowner\tnone\nentry\tbusy-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99850\nholds\tin-flight,cache\nowner\tboss-run\nentry\thalf-1\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t300\nlast-signal\t95000\nholds\treports\nowner\tnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-digits-nko-two",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\t100000\nentry\tlive-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99980\nholds\tworkspace\nowner\tboss-run\nentry\tboss-run\nkind\trun\nstarter\tsupervisor-1\nstate\trunning\nsignal-interval\t30\nlast-signal\t99995\nholds\tnone\nowner\tnone\nentry\tdone-run\nkind\trun\nstarter\tsupervisor-1\nstate\tfinished\nsignal-interval\t300\nlast-signal\t90000\nholds\tnone\nowner\tnone\nentry\tstale-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t1߂0\nlast-signal\t96400\nholds\tcache\nowner\tdone-run\nentry\tstale-2\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99000\nholds\tnone\nowner\tghost-7\nentry\tquiet-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t90\nlast-signal\tnone\nholds\tnone\nowner\tnone\nentry\tbusy-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99850\nholds\tin-flight,cache\nowner\tboss-run\nentry\thalf-1\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t300\nlast-signal\t95000\nholds\treports\nowner\tnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-digits-nko-three",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\t100000\nentry\tlive-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99980\nholds\tworkspace\nowner\tboss-run\nentry\tboss-run\nkind\trun\nstarter\tsupervisor-1\nstate\trunning\nsignal-interval\t߃0\nlast-signal\t99995\nholds\tnone\nowner\tnone\nentry\tdone-run\nkind\trun\nstarter\tsupervisor-1\nstate\tfinished\nsignal-interval\t߃00\nlast-signal\t90000\nholds\tnone\nowner\tnone\nentry\tstale-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t120\nlast-signal\t96400\nholds\tcache\nowner\tdone-run\nentry\tstale-2\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99000\nholds\tnone\nowner\tghost-7\nentry\tquiet-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t90\nlast-signal\tnone\nholds\tnone\nowner\tnone\nentry\tbusy-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99850\nholds\tin-flight,cache\nowner\tboss-run\nentry\thalf-1\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t߃00\nlast-signal\t95000\nholds\treports\nowner\tnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-digits-nko-four",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\t100000\nentry\tlive-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99980\nholds\tworkspace\nowner\tboss-run\nentry\tboss-run\nkind\trun\nstarter\tsupervisor-1\nstate\trunning\nsignal-interval\t30\nlast-signal\t99995\nholds\tnone\nowner\tnone\nentry\tdone-run\nkind\trun\nstarter\tsupervisor-1\nstate\tfinished\nsignal-interval\t300\nlast-signal\t90000\nholds\tnone\nowner\tnone\nentry\tstale-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t120\nlast-signal\t96߄00\nholds\tcache\nowner\tdone-run\nentry\tstale-2\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99000\nholds\tnone\nowner\tghost-7\nentry\tquiet-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t90\nlast-signal\tnone\nholds\tnone\nowner\tnone\nentry\tbusy-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99850\nholds\tin-flight,cache\nowner\tboss-run\nentry\thalf-1\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t300\nlast-signal\t95000\nholds\treports\nowner\tnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-digits-nko-five",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\t100000\nentry\tlive-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99980\nholds\tworkspace\nowner\tboss-run\nentry\tboss-run\nkind\trun\nstarter\tsupervisor-1\nstate\trunning\nsignal-interval\t30\nlast-signal\t9999߅\nholds\tnone\nowner\tnone\nentry\tdone-run\nkind\trun\nstarter\tsupervisor-1\nstate\tfinished\nsignal-interval\t300\nlast-signal\t90000\nholds\tnone\nowner\tnone\nentry\tstale-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t120\nlast-signal\t96400\nholds\tcache\nowner\tdone-run\nentry\tstale-2\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99000\nholds\tnone\nowner\tghost-7\nentry\tquiet-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t90\nlast-signal\tnone\nholds\tnone\nowner\tnone\nentry\tbusy-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t998߅0\nholds\tin-flight,cache\nowner\tboss-run\nentry\thalf-1\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t300\nlast-signal\t9߅000\nholds\treports\nowner\tnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-digits-nko-six",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\t100000\nentry\tlive-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t߆0\nlast-signal\t99980\nholds\tworkspace\nowner\tboss-run\nentry\tboss-run\nkind\trun\nstarter\tsupervisor-1\nstate\trunning\nsignal-interval\t30\nlast-signal\t99995\nholds\tnone\nowner\tnone\nentry\tdone-run\nkind\trun\nstarter\tsupervisor-1\nstate\tfinished\nsignal-interval\t300\nlast-signal\t90000\nholds\tnone\nowner\tnone\nentry\tstale-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t120\nlast-signal\t9߆400\nholds\tcache\nowner\tdone-run\nentry\tstale-2\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t߆0\nlast-signal\t99000\nholds\tnone\nowner\tghost-7\nentry\tquiet-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t90\nlast-signal\tnone\nholds\tnone\nowner\tnone\nentry\tbusy-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t߆0\nlast-signal\t99850\nholds\tin-flight,cache\nowner\tboss-run\nentry\thalf-1\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t300\nlast-signal\t95000\nholds\treports\nowner\tnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-digits-nko-eight",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\t100000\nentry\tlive-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t999߈0\nholds\tworkspace\nowner\tboss-run\nentry\tboss-run\nkind\trun\nstarter\tsupervisor-1\nstate\trunning\nsignal-interval\t30\nlast-signal\t99995\nholds\tnone\nowner\tnone\nentry\tdone-run\nkind\trun\nstarter\tsupervisor-1\nstate\tfinished\nsignal-interval\t300\nlast-signal\t90000\nholds\tnone\nowner\tnone\nentry\tstale-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t120\nlast-signal\t96400\nholds\tcache\nowner\tdone-run\nentry\tstale-2\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99000\nholds\tnone\nowner\tghost-7\nentry\tquiet-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t90\nlast-signal\tnone\nholds\tnone\nowner\tnone\nentry\tbusy-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t99߈50\nholds\tin-flight,cache\nowner\tboss-run\nentry\thalf-1\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t300\nlast-signal\t95000\nholds\treports\nowner\tnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "observe-digits-nko-nine",
+   "source": "oracle",
+   "setup": {
+    "early.txt": "snapshot\t100000\nentry\tlive-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t߉߉߉80\nholds\tworkspace\nowner\tboss-run\nentry\tboss-run\nkind\trun\nstarter\tsupervisor-1\nstate\trunning\nsignal-interval\t30\nlast-signal\t߉߉߉߉5\nholds\tnone\nowner\tnone\nentry\tdone-run\nkind\trun\nstarter\tsupervisor-1\nstate\tfinished\nsignal-interval\t300\nlast-signal\t߉0000\nholds\tnone\nowner\tnone\nentry\tstale-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t120\nlast-signal\t߉6400\nholds\tcache\nowner\tdone-run\nentry\tstale-2\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t߉߉000\nholds\tnone\nowner\tghost-7\nentry\tquiet-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t߉0\nlast-signal\tnone\nholds\tnone\nowner\tnone\nentry\tbusy-1\nkind\tprocess\nstarter\tscheduler-1\nstate\trunning\nsignal-interval\t60\nlast-signal\t߉߉850\nholds\tin-flight,cache\nowner\tboss-run\nentry\thalf-1\nkind\tprocess\nstarter\tcron-1\nstate\trunning\nsignal-interval\t300\nlast-signal\t߉5000\nholds\treports\nowner\tnone\n",
+    "later.txt": "snapshot 101200\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "observe",
+    "early.txt",
+    "later.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
   }
  ]
 }
