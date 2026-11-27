@@ -7567,6 +7567,159 @@
     "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
     "stderr": ""
    }
+  },
+  {
+   "name": "plan-digits-nko-zero",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 1߀߀߀߀߀\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 6߀\nlast-signal 9998߀\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 3߀\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 3߀߀\nlast-signal 9߀߀߀߀\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 12߀\nlast-signal 964߀߀\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 6߀\nlast-signal 99߀߀߀\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 9߀\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 6߀\nlast-signal 9985߀\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 3߀߀\nlast-signal 95߀߀߀\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-digits-nko-one",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot ߁00000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval ߁20\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-digits-nko-two",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 1߂0\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-digits-nko-three",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval ߃0\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval ߃00\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval ߃00\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-digits-nko-four",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96߄00\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-digits-nko-five",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 9999߅\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 998߅0\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 9߅000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-digits-nko-six",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval ߆0\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 9߆400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval ߆0\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval ߆0\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-digits-nko-eight",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 999߈0\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99߈50\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "plan-digits-nko-nine",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal ߉߉߉80\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal ߉߉߉߉5\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal ߉0000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal ߉6400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal ߉߉000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval ߉0\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal ߉߉850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal ߉5000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "plan",
+    "snap.txt",
+    "stale-1"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "quarantine plan for stale-1\nclassification proven zombie\nproof\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nstep 1 reversible, detach stale-1 from scheduler-1 so no new work reaches it\nstep 2 reversible, fence the recorded holds, cache, so nothing else claims them while the entry is watched\nstep 3 reversible, hold the quarantine for the observation window and watch for any signal from stale-1\nobservation window 1200 seconds\nescalation, if stale-1 shows no signal for the whole observation window and no owner comes forward, a kill proposal may be drafted in a later round, and this plan never escalates itself\nexecutes nothing, this plan is a document and the tool performs no part of it\n",
+    "stderr": ""
+   }
   }
  ]
 }
