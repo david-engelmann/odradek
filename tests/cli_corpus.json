@@ -7891,6 +7891,166 @@
     "stdout": "observation report for stale-1\nplanned from snapshot 100000\nobserved at snapshot 101200\nelapsed 1200 seconds\nobservation window 1200 seconds\noutcome quarantine held\n  evidence for the later snapshot records last signal 96400 for the entry, the same last signal the earlier snapshot recorded\n  evidence for owner done-run is recorded finished\nexecutes nothing, this report is a document and the tool performs no part of it\n",
     "stderr": ""
    }
+  },
+  {
+   "name": "scan-digits-devanagari-zero",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 1०००००\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 6०\nlast-signal 9998०\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 3०\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 3००\nlast-signal 9००००\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 12०\nlast-signal 964००\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 6०\nlast-signal 99०००\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 9०\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 6०\nlast-signal 9985०\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 3००\nlast-signal 95०००\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-digits-devanagari-one",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot १00000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval १20\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-digits-devanagari-two",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 1२0\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-digits-devanagari-three",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval ३0\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval ३00\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval ३00\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-digits-devanagari-four",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96४00\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-digits-devanagari-five",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 9999५\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 998५0\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 9५000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-digits-devanagari-six",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval ६0\nlast-signal 99980\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 9६400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval ६0\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval ६0\nlast-signal 99850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-digits-devanagari-seven",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 10000\nentry edge-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 100\nlast-signal 9७00\nholds none\nowner ghost-1\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 10000\ncounts live 0 suspect 0 proven 1 settled 0\nzombie edge-1\n  evidence for signal age 300 seconds reaches the proof threshold of 300 seconds\n  evidence for owner ghost-1 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-digits-devanagari-eight",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 999८0\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal 99995\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal 90000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal 96400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal 99000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 90\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal 99८50\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal 95000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
+  },
+  {
+   "name": "scan-digits-devanagari-nine",
+   "source": "oracle",
+   "setup": {
+    "snap.txt": "snapshot 100000\nentry live-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal ९९९80\nholds workspace\nowner boss-run\nentry boss-run\nkind run\nstarter supervisor-1\nstate running\nsignal-interval 30\nlast-signal ९९९९5\nholds none\nowner none\nentry done-run\nkind run\nstarter supervisor-1\nstate finished\nsignal-interval 300\nlast-signal ९0000\nholds none\nowner none\nentry stale-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 120\nlast-signal ९6400\nholds cache\nowner done-run\nentry stale-2\nkind process\nstarter cron-1\nstate running\nsignal-interval 60\nlast-signal ९९000\nholds none\nowner ghost-7\nentry quiet-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval ९0\nlast-signal none\nholds none\nowner none\nentry busy-1\nkind process\nstarter scheduler-1\nstate running\nsignal-interval 60\nlast-signal ९९850\nholds in-flight,cache\nowner boss-run\nentry half-1\nkind process\nstarter cron-1\nstate running\nsignal-interval 300\nlast-signal ९5000\nholds reports\nowner none\n"
+   },
+   "argv": [
+    "scan",
+    "snap.txt"
+   ],
+   "expect": {
+    "code": 0,
+    "stdout": "snapshot 100000\ncounts live 2 suspect 3 proven 2 settled 1\nzombie stale-1\n  evidence for signal age 3600 seconds reaches the proof threshold of 360 seconds\n  evidence for owner done-run is recorded finished\n  evidence for holds cache with no in-flight marker\nzombie stale-2\n  evidence for signal age 1000 seconds reaches the proof threshold of 180 seconds\n  evidence for owner ghost-7 is absent from the snapshot\n  evidence for the entry holds nothing and carries no in-flight marker\nsuspect busy-1\n  evidence against signal age 150 seconds is under the proof threshold of 180 seconds\n  evidence against owner boss-run is recorded running\n  evidence against holds cache, in-flight including the in-flight marker\nsuspect half-1\n  evidence for signal age 5000 seconds reaches the proof threshold of 900 seconds\n  missing no owner reference is recorded for this entry\n  evidence for holds reports with no in-flight marker\nsuspect quiet-1\n  missing no signal is recorded for this entry\n  missing no owner reference is recorded for this entry\n  evidence for the entry holds nothing and carries no in-flight marker\n",
+    "stderr": ""
+   }
   }
  ]
 }
